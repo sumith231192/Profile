@@ -44,6 +44,20 @@
                 background-color: transparent;
             }
         }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .speak-button {
+            background-color: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-family: 'Roboto Mono', monospace;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -51,12 +65,16 @@
         <span id="content"></span>
         <span id="cursor" class="cursor"></span>
     </div>
+    
+    <div class="button-container">
+        <button id="speak-button" class="speak-button">Click me for Voice :)</button>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const contentElement = document.getElementById('content');
             const cursorElement = document.getElementById('cursor');
-
+            const speakButton = document.getElementById('speak-button');
             const profileText = `
                 $ ******************* Sumith Profile ******************* 
                 
@@ -67,7 +85,7 @@ I've made this CV interactive to you to demonstrate my skills and how much I lov
 
                  I work as a Lead Software Development Engineer in Test and have 12+ years of experience in QA, automated testing, and automation framework development. 
 
-               I have contributed my talents to various organizations, including Telstra, Commonwealth Bank of Australia, Standard Chartered, and Wells Fargo, HCL Technologies and Cognizant. 
+               I have contributed my talents to various organizations, including Wipro Technologies, Telstra, Commonwealth Bank of Australia, Standard Chartered Bank, and Wells Fargo, HCL Technologies and Cognizant Technology Solutions. 
 
 I possess deep expertise in crafting robust and scalable automation frameworks using Java, Python, and TypeScript with tools like Playwright, Selenium, and Cucumber-BDD. 
 I pioneered the integration of Copilot AI agents to automatically generate test cases by referencing diverse data sources, significantly improving coverage and speed. 
@@ -85,28 +103,71 @@ My work has consistently resulted in significant reductions in test execution ti
                 
                 Thank you for the opportunity to speak with you :) :) :)
                 
-                $ _
+                $ 
             `.trim();
 
             let charIndex = 0;
             const typingSpeed = 50; // Milliseconds per character
+            let isTyping = false;
+            let boyVoice = null;
+
+            // This function finds and sets the voice.
+            function findAndSetVoice() {
+                const voices = window.speechSynthesis.getVoices();
+                // We're now looking for more common names for male voices on different systems.
+                boyVoice = voices.find(voice => 
+                    voice.lang.startsWith('en-') && 
+                    (voice.name.includes('Male') || voice.name.includes('Boy') || voice.name.includes('Daniel') || voice.name.includes('Alex'))
+                );
+            }
+
+            // Check if voices are already loaded. If not, wait for them.
+            if (speechSynthesis.getVoices().length === 0) {
+                speechSynthesis.onvoiceschanged = findAndSetVoice;
+            } else {
+                findAndSetVoice();
+            }
 
             function typeWriter() {
                 if (charIndex < profileText.length) {
+                    isTyping = true;
                     contentElement.textContent += profileText.charAt(charIndex);
                     charIndex++;
                     setTimeout(typeWriter, typingSpeed);
                 } else {
+                    isTyping = false;
                     cursorElement.style.animation = 'none';
                     cursorElement.style.visibility = 'hidden';
                 }
             }
-
+            
             typeWriter();
+
+            speakButton.addEventListener('click', () => {
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel();
+                    speakButton.textContent = 'Click me for Voice :)';
+                } else {
+                    const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
+                    const utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
+                    
+                    utterance.pitch = 1.2;
+                    utterance.rate = 1.3;
+                    
+                    // The voice is already stored in the `boyVoice` variable.
+                    if (boyVoice) {
+                        utterance.voice = boyVoice;
+                    }
+
+                    utterance.onend = () => {
+                        speakButton.textContent = 'Click me for Voice :)';
+                    };
+                    
+                    speechSynthesis.speak(utterance);
+                    speakButton.textContent = 'Stop Reading';
+                }
+            });
         });
     </script>
 </body>
 </html>
-
-
-
