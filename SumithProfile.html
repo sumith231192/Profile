@@ -132,6 +132,20 @@ My work has consistently resulted in significant reductions in test execution ti
                     const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
                     const utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
                     
+                    // --- New Code for a more youthful voice ---
+                    utterance.pitch = 1.5; // A higher value (0 to 2, with 1 as default) makes the voice higher-pitched.
+                    utterance.rate = 1.2;  // A higher value (0.1 to 10, with 1 as default) makes the speech faster.
+                    
+                    // Optional: Try to find a voice that sounds young
+                    // Note: Voices vary by browser and operating system.
+                    // You can uncomment the lines below to experiment.
+                    // const voices = window.speechSynthesis.getVoices();
+                    // const youngVoice = voices.find(voice => voice.name.includes('Google US English'));
+                    // if (youngVoice) {
+                    //   utterance.voice = youngVoice;
+                    // }
+                    // ------------------------------------------
+
                     utterance.onend = () => {
                         speakButton.textContent = 'Read Profile';
                     };
