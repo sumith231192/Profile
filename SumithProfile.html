@@ -114,9 +114,10 @@ My work has consistently resulted in significant reductions in test execution ti
             // This function finds and sets the voice.
             function findAndSetVoice() {
                 const voices = window.speechSynthesis.getVoices();
+                // We're now looking for more common names for male voices on different systems.
                 boyVoice = voices.find(voice => 
                     voice.lang.startsWith('en-') && 
-                    (voice.name.includes('Male') || voice.name.includes('Boy') || voice.name.includes('en-US'))
+                    (voice.name.includes('Male') || voice.name.includes('Boy') || voice.name.includes('Daniel') || voice.name.includes('Alex'))
                 );
             }
 
@@ -150,8 +151,8 @@ My work has consistently resulted in significant reductions in test execution ti
                     const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
                     const utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
                     
-                    utterance.pitch = 1.2; // A lower pitch to sound more masculine
-                    utterance.rate = 1.3; // A faster rate for a youthful tone
+                    utterance.pitch = 1.2;
+                    utterance.rate = 1.3;
                     
                     // The voice is already stored in the `boyVoice` variable.
                     if (boyVoice) {
