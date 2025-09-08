@@ -127,7 +127,7 @@ My work has consistently resulted in significant reductions in test execution ti
             speakButton.addEventListener('click', () => {
                 if (speechSynthesis.speaking) {
                     speechSynthesis.cancel();
-                    speakButton.textContent = 'Read Profile';
+                    speakButton.textContent = 'Click me for Voice :)';
                 } else {
                     const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
                     const utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
@@ -148,7 +148,7 @@ My work has consistently resulted in significant reductions in test execution ti
                     }
 
                     utterance.onend = () => {
-                        speakButton.textContent = 'Read Profile';
+                        speakButton.textContent = 'Click me for Voice :)';
                     };
                     
                     speechSynthesis.speak(utterance);
@@ -159,4 +159,5 @@ My work has consistently resulted in significant reductions in test execution ti
     </script>
 </body>
 </html>
+
 
