@@ -67,7 +67,7 @@
     </div>
     
     <div class="button-container">
-        <button id="speak-button" class="speak-button"> Click Me For Voice :) </button>
+        <button id="speak-button" class="speak-button">Read Profile</button>
     </div>
 
     <script>
@@ -132,17 +132,19 @@ My work has consistently resulted in significant reductions in test execution ti
                     const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
                     const utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
                     
-                    // --- New Code for a more youthful voice ---
-                    utterance.pitch = 1.6; // Slightly higher pitch for a younger sound.
-                    utterance.rate = 1.3;  // A slightly faster rate.
+                    // --- Settings for a more youthful male voice ---
+                    utterance.pitch = 1.3; // A higher pitch
+                    utterance.rate = 1.2;  // A faster speed
                     
-                    // Try to find a voice that sounds like a young male.
-                    // Note: The availability and names of voices depend on the browser and OS.
+                    // Find a voice that is likely a young male.
                     const voices = window.speechSynthesis.getVoices();
-                    const maleVoice = voices.find(voice => voice.name.includes('Male') || voice.name.includes('Man') || voice.name.includes('Daniel') || voice.name.includes('Alex'));
+                    const boyVoice = voices.find(voice => 
+                        voice.lang.startsWith('en-') && 
+                        (voice.name.includes('Male') || voice.name.includes('Boy') || voice.name.includes('en-US'))
+                    );
 
-                    if (maleVoice) {
-                      utterance.voice = maleVoice;
+                    if (boyVoice) {
+                        utterance.voice = boyVoice;
                     }
 
                     utterance.onend = () => {
@@ -157,4 +159,3 @@ My work has consistently resulted in significant reductions in test execution ti
     </script>
 </body>
 </html>
-
