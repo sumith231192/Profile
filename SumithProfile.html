@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sumith PA - Interactive Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #000;
+            color: #00ff00;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .terminal {
+            width: 90%;
+            max-width: 800px;
+            height: 80%;
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        .cursor {
+            display: inline-block;
+            background-color: #00ff00;
+            animation: blink 1s step-end infinite;
+            width: 8px;
+            height: 1.2em;
+        }
+        @keyframes blink {
+            50% {
+                background-color: transparent;
+            }
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .speak-button {
+            background-color: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-family: 'Roboto Mono', monospace;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal" id="terminal">
+        <span id="content"></span>
+        <span id="cursor" class="cursor"></span>
+    </div>
+    
+    <div class="button-container">
+        <button id="speak-button" class="speak-button">Read Profile</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const contentElement = document.getElementById('content');
+            const cursorElement = document.getElementById('cursor');
+            const speakButton = document.getElementById('speak-button');
+            const profileText = `
+                $ ******************* Sumith Profile ******************* Hello there! My name is Sumith PA.
+
+I've made this CV interactive to you to demonstrate my skills and how much I love innovation and learning.
+ Lets Begin.........
+
+                 I work as a Lead Software Development Engineer in Test and have 12+ years of experience in QA, automated testing, and automation framework development. 
+
+               I have contributed my talents to various organizations, including Telstra, Commonwealth Bank of Australia, Standard Chartered, and Wells Fargo, HCL Technologies and Cognizant. 
+
+I possess deep expertise in crafting robust and scalable automation frameworks using Java, Python, and TypeScript with tools like Playwright, Selenium, and Cucumber-BDD. 
+I pioneered the integration of Copilot AI agents to automatically generate test cases by referencing diverse data sources, significantly improving coverage and speed. 
+
+I have led the development of automation frameworks for web, API, and mobile applications, including complex systems like Pega, SAP UI, and Salesforce. 
+
+Throughout my career, I have a proven ability to perform as a Solution Architect, defining and developing automation test strategies, and leading rigorous code reviews. 
+
+My work has consistently resulted in significant reductions in test execution time and improvements in test accuracy and efficiency.
+
+
+                I'm confident that my background in architecting comprehensive QA solutions will be a valuable asset to any team.
+
+                If you like this and if you find any opportunity that is a good fit for my role, please reach out to me at +91 9995667550 or +91 8754175333.
+                
+                Thank you for the opportunity to speak with you :) :) :)
+                
+                $ _
+            `.trim();
+
+            let charIndex = 0;
+            const typingSpeed = 50; // Milliseconds per character
+            let isTyping = false;
+            let currentUtterance = null;
+
+            function typeWriter() {
+                if (charIndex < profileText.length) {
+                    isTyping = true;
+                    contentElement.textContent += profileText.charAt(charIndex);
+                    charIndex++;
+                    setTimeout(typeWriter, typingSpeed);
+                } else {
+                    isTyping = false;
+                    cursorElement.style.animation = 'none';
+                    cursorElement.style.visibility = 'hidden';
+                }
+            }
+            
+            typeWriter();
+
+            speakButton.addEventListener('click', () => {
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel();
+                    speakButton.textContent = 'Read Profile';
+                } else {
+                    const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
+                    const utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
+                    
+                    utterance.onend = () => {
+                        speakButton.textContent = 'Read Profile';
+                    };
+                    
+                    speechSynthesis.speak(utterance);
+                    speakButton.textContent = 'Stop Reading';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
