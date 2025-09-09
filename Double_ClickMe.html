@@ -76,18 +76,20 @@
             const cursorElement = document.getElementById('cursor');
             const speakButton = document.getElementById('speak-button');
             const profileText = `
-                $ ******************* Sumith Profile ******************* 
+                $ 
                 
                 Hello there! My name is Sumith PA.
 
-I've made this CV interactive to you to demonstrate my skills and how much I love innovation and learning.
- Lets Begin.........
+I've made this CV interactive for you to demonstrate my skills and how much I love innovation and learning, and how I wish to present myself in front of you.
 
-                 I work as a Lead Software Development Engineer in Test and have 12+ years of experience in QA, automated testing, and automation framework development. 
+Lets Begin.........
 
-               I have contributed my talents to various organizations, including Wipro Technologies, Telstra, Commonwealth Bank of Australia, Standard Chartered Bank, and Wells Fargo, HCL Technologies and Cognizant Technology Solutions. 
+I work as a Lead Software Development Engineer in Test and have 12+ years of experience in QA, automated testing, and automation framework development. 
+
+I have contributed my talents to various organizations, including Telstra, Commonwealth Bank of Australia, Standard Chartered Bank, and Wells Fargo, HCL Technologies and Cognizant Technology Solutions. 
 
 I possess deep expertise in crafting robust and scalable automation frameworks using Java, Python, and TypeScript with tools like Playwright, Selenium, and Cucumber-BDD. 
+
 I pioneered the integration of Copilot AI agents to automatically generate test cases by referencing diverse data sources, significantly improving coverage and speed. 
 
 I have led the development of automation frameworks for web, API, and mobile applications, including complex systems like Pega, SAP UI, and Salesforce. 
@@ -96,10 +98,9 @@ Throughout my career, I have a proven ability to perform as a Solution Architect
 
 My work has consistently resulted in significant reductions in test execution time and improvements in test accuracy and efficiency.
 
+I'm confident that my background in architecting comprehensive QA solutions will be a valuable asset to any team.
 
-                I'm confident that my background in architecting comprehensive QA solutions will be a valuable asset to any team.
-
-                If you like this and if you find any opportunity that is a good fit for my role, please reach out to me at +91 9995667550 or +91 8754175333.
+If you like this and if you find any opportunity that is a good fit for my role, please reach out to me at +91 9995667550 or +91 8754175333.
                 
                 Thank you for the opportunity to speak with you :)
                 
@@ -110,6 +111,7 @@ My work has consistently resulted in significant reductions in test execution ti
             const typingSpeed = 60; // Milliseconds per character
             let isTyping = false;
             let boyVoice = null;
+            let utterance = null;
 
             // This function finds and sets the voice.
             function findAndSetVoice() {
@@ -121,13 +123,27 @@ My work has consistently resulted in significant reductions in test execution ti
                 );
             }
 
-            // Check if voices are already loaded. If not, wait for them.
-            if (speechSynthesis.getVoices().length === 0) {
-                speechSynthesis.onvoiceschanged = findAndSetVoice;
-            } else {
-                findAndSetVoice();
+            // Function to speak the text
+            function speakText() {
+                const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
+                utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
+                
+                utterance.pitch = 1.2;
+                // Voice speed is now set to 1.1 as requested.
+                utterance.rate = 1.1;
+                
+                if (boyVoice) {
+                    utterance.voice = boyVoice;
+                }
+
+                utterance.onend = () => {
+                    speakButton.textContent = 'Click me for Voice :)';
+                };
+                
+                speechSynthesis.speak(utterance);
             }
 
+            // This function will handle the typing animation
             function typeWriter() {
                 if (charIndex < profileText.length) {
                     isTyping = true;
@@ -142,28 +158,20 @@ My work has consistently resulted in significant reductions in test execution ti
             }
             
             typeWriter();
+            if ('speechSynthesis' in window) {
+                if (speechSynthesis.getVoices().length === 0) {
+                    speechSynthesis.onvoiceschanged = findAndSetVoice;
+                } else {
+                    findAndSetVoice();
+                }
+            }
 
             speakButton.addEventListener('click', () => {
                 if (speechSynthesis.speaking) {
                     speechSynthesis.cancel();
                     speakButton.textContent = 'Click me for Voice :)';
                 } else {
-                    const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
-                    const utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
-                    
-                    utterance.pitch = 1.2;
-                    utterance.rate = 1.3;
-                    
-                    // The voice is already stored in the `boyVoice` variable.
-                    if (boyVoice) {
-                        utterance.voice = boyVoice;
-                    }
-
-                    utterance.onend = () => {
-                        speakButton.textContent = 'Click me for Voice :)';
-                    };
-                    
-                    speechSynthesis.speak(utterance);
+                    speakText();
                     speakButton.textContent = 'Stop Reading';
                 }
             });
@@ -171,4 +179,3 @@ My work has consistently resulted in significant reductions in test execution ti
     </script>
 </body>
 </html>
-
