@@ -12,25 +12,56 @@
         body {
             font-family: 'Roboto Mono', monospace;
             background-color: #000;
+            background-image: radial-gradient(circle, #2a2a2a 1px, transparent 1px);
+            background-size: 25px 25px;
             color: #00ff00;
             margin: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
-        .terminal {
+        .container {
             width: 90%;
-            max-width: 800px;
-            height: 80%;
-            background-color: #1a1a1a;
+            max-width: 900px;
+            height: 95vh; /* Increased height */
+            background-color: rgba(26, 26, 26, 0.95);
             border: 2px solid #00ff00;
             border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            padding: 32px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.7);
             overflow-y: auto;
+            position: relative;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #00ff00;
+            object-fit: cover;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        .header-content h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 8px;
+        }
+        .header-content h2 {
+            font-size: 1.25rem;
+            color: #00ff00;
+        }
+        .terminal {
             white-space: pre-wrap;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-size: 1rem;
         }
         .cursor {
             display: inline-block;
@@ -46,24 +77,39 @@
         }
         .button-container {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 24px;
         }
         .speak-button {
             background-color: #00ff00;
             color: #000;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-family: 'Roboto Mono', monospace;
             cursor: pointer;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            transition: all 0.3s ease-in-out;
+        }
+        .speak-button:hover {
+            background-color: #00e000;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
         }
     </style>
 </head>
 <body>
-    <div class="terminal" id="terminal">
-        <span id="content"></span>
-        <span id="cursor" class="cursor"></span>
+    <div class="container" id="terminal-container">
+        <div class="profile-header">
+            <img src="image2.jpg" alt="" class="profile-img">
+            <div class="header-content">
+                <h1>Sumith PA</h1>
+                <h2>Senior Software Development Engineer in Test</h2>
+            </div>
+        </div>
+        
+        <div class="terminal" id="terminal">
+            <span id="content"></span>
+            <span id="cursor" class="cursor"></span>
+        </div>
     </div>
     
     <div class="button-container">
@@ -74,105 +120,95 @@
         document.addEventListener('DOMContentLoaded', () => {
             const contentElement = document.getElementById('content');
             const cursorElement = document.getElementById('cursor');
+            const terminalContainer = document.getElementById('terminal-container');
             const speakButton = document.getElementById('speak-button');
             const profileText = `
-                $ 
-                
-                Hello there! My name is Sumith PA.
+                Hello there! My name is Sumith ......
 
-I've made this CV interactive for you to demonstrate my skills and how much I love innovation and learning, and how I wish to present myself in front of you.
-
+I've made this CV interactive for you to demonstrate my skills and how much I love innovation and learning.
 Lets Begin.........
-
 
 I work as a Lead Software Development Engineer in Test and have 12+ years of experience in QA, automated testing, and automation framework development. 
 
-I have contributed my talents to various organizations, including Telstra, Commonwealth Bank of Australia, Standard Chartered Bank, and Wells Fargo, HCL Technologies and Cognizant Technology Solutions. 
+I have contributed my talents to various organizations, including Telstra, Commonwealth Bank of Australia,Standard Chartered Bank, and Wells Fargo,
+HCL Technologies and Cognizant Technology Solutions. 
 
-I possess deep expertise in crafting robust and scalable automation frameworks using Java, Python, and TypeScript with tools like Playwright, Selenium, and Cucumber-BDD. 
+I possess deep expertise in crafting robust and scalable automation frameworks using Java, Python, and TypeScript
+with tools like Playwright, Selenium, and Cucumber-BDD. 
+I pioneered the integration of Copilot AI agents to automatically generate test cases 
+by referencing diverse data sources, significantly improving coverage and speed. 
 
-I pioneered the integration of Copilot AI agents to automatically generate test cases by referencing diverse data sources, significantly improving coverage and speed. 
+I have led the development of automation frameworks for web, API, and mobile applications, 
+including complex systems like Pega, SAP UI, and Salesforce. 
 
-I have led the development of automation frameworks for web, API, and mobile applications, including complex systems like Pega, SAP UI, and Salesforce. 
+Throughout my career, I have a proven ability to perform as a Solution Architect, 
+defining and developing automation test strategies, and leading rigorous code reviews. 
 
-Throughout my career, I have a proven ability to perform as a Solution Architect, defining and developing automation test strategies, and leading rigorous code reviews. 
-
-My work has consistently resulted in significant reductions in test execution time and improvements in test accuracy and efficiency.
+My work has consistently resulted in significant reductions in test 
+execution time and improvements in test accuracy and efficiency.
 
 I'm confident that my background in architecting comprehensive QA solutions will be a valuable asset to any team.
 
 If you like this and if you find any opportunity that is a good fit for my role, please reach out to me at +91 9995667550 or +91 8754175333.
-                
-                Thank you for the opportunity to speak with you :)
-                
-                $ 
+
+My email id is also provided in the cv attached 
+
+Wish you a happy day ...... Thank you for the opportunity to speak with you :)
             `.trim();
 
             let charIndex = 0;
-            const typingSpeed = 60; // Milliseconds per character
-            let isTyping = false;
+            const typingSpeed = 60;
             let boyVoice = null;
-            let utterance = null;
-
-            // This function finds and sets the voice.
+            
             function findAndSetVoice() {
                 const voices = window.speechSynthesis.getVoices();
-                // We're now looking for more common names for male voices on different systems.
                 boyVoice = voices.find(voice => 
                     voice.lang.startsWith('en-') && 
                     (voice.name.includes('Male') || voice.name.includes('Boy') || voice.name.includes('Daniel') || voice.name.includes('Alex'))
                 );
             }
 
-            // Function to speak the text
-            function speakText() {
-                const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
-                utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
-                
-                utterance.pitch = 1.2;
-                // Voice speed is now set to 1.1 as requested.
-                utterance.rate = 1.1;
-                
-                if (boyVoice) {
-                    utterance.voice = boyVoice;
-                }
-
-                utterance.onend = () => {
-                    speakButton.textContent = 'Click me for Voice :)';
-                };
-                
-                speechSynthesis.speak(utterance);
+            if (speechSynthesis.getVoices().length === 0) {
+                speechSynthesis.onvoiceschanged = findAndSetVoice;
+            } else {
+                findAndSetVoice();
             }
 
-            // This function will handle the typing animation
             function typeWriter() {
                 if (charIndex < profileText.length) {
-                    isTyping = true;
                     contentElement.textContent += profileText.charAt(charIndex);
                     charIndex++;
+                    // Automatically scroll to the bottom as text is added
+                    terminalContainer.scrollTop = terminalContainer.scrollHeight;
                     setTimeout(typeWriter, typingSpeed);
                 } else {
-                    isTyping = false;
                     cursorElement.style.animation = 'none';
                     cursorElement.style.visibility = 'hidden';
                 }
             }
             
             typeWriter();
-            if ('speechSynthesis' in window) {
-                if (speechSynthesis.getVoices().length === 0) {
-                    speechSynthesis.onvoiceschanged = findAndSetVoice;
-                } else {
-                    findAndSetVoice();
-                }
-            }
 
             speakButton.addEventListener('click', () => {
                 if (speechSynthesis.speaking) {
                     speechSynthesis.cancel();
                     speakButton.textContent = 'Click me for Voice :)';
                 } else {
-                    speakText();
+                    const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
+                    const utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
+                    
+                    utterance.pitch = 1.2;
+                    utterance.rate = 1.1;
+                    
+                    if (boyVoice) {
+                        utterance.voice = boyVoice;
+                    }
+
+                    utterance.onend = () => {
+                        speakButton.textContent = 'Click me for Voice :)';
+                    };
+                    
+                    speechSynthesis.speak(utterance);
                     speakButton.textContent = 'Stop Reading';
                 }
             });
