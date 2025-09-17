@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sumith PA - Interactive Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #000;
+            color: #00ff00;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .star-field {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: -1;
+        }
+
+        .star-field .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: moveStars linear infinite, starFlicker 2s infinite alternate;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            height: 95vh;
+            background-color: rgba(26, 26, 26, 0.95);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.7);
+            overflow-y: auto;
+            position: relative;
+            animation: glowPulse 4s infinite ease-in-out alternate;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+            animation-delay: 1s;
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #00ff00;
+            object-fit: cover;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .profile-img:hover {
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.8);
+        }
+
+        .header-content h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 8px;
+        }
+
+        .header-content h2 {
+            font-size: 1.25rem;
+            color: #00ff00;
+        }
+
+        .terminal {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 1rem;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+
+        .cursor {
+            display: inline-block;
+            background-color: #00ff00;
+            animation: blink 1s infinite;
+            width: 8px;
+            height: 1.2em;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .speak-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #00ff00;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            font-family: 'Roboto Mono', monospace;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            transition: all 0.3s ease-in-out;
+            z-index: 1000;
+        }
+
+        .speak-button:hover {
+            background-color: #00e000;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+            transform: scale(1.05);
+        }
+
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); transform: scale(1); }
+            100% { box-shadow: 0 0 40px rgba(0, 255, 0, 0.9); transform: scale(1.01); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes moveStars {
+            from { transform: translateY(0); }
+            to { transform: translateY(100vh); }
+        }
+
+        @keyframes starFlicker {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="star-field" id="star-field"></div>
+    <button id="speak-button" class="speak-button">Click me for Voice :)</button>
+    <div class="container" id="terminal-container">
+        <div class="profile-header">
+            <img src="image2.jpg" alt="" class="profile-img">
+            <div class="header-content">
+                <h1>Sumith PA</h1>
+                <h2>Senior Software Development Engineer in Test</h2>
+                <h2>(Lead Automation Framework Architect)</h2>
+            </div>
+        </div>
+        
+        <div class="terminal" id="terminal">
+            <span id="content"></span>
+            <span id="cursor" class="cursor"></span>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const contentElement = document.getElementById('content');
+            const cursorElement = document.getElementById('cursor');
+            const terminalContainer = document.getElementById('terminal-container');
+            const speakButton = document.getElementById('speak-button');
+            const profileText = `
+                Hello there! My name is Sumith.
+
+I've made this CV interactive for you to demonstrate my skills and how much I love innovation and learning.
+Lets Begin.........
+
+I am currently an Architect at Wipro, with over 12 years of experience as a Lead Software Development Engineer in Test. I began my career as a Java developer, then transitioned into an automation architect role, specializing in developing frameworks with a strong focus on scalability and reliability.
+
+I have contributed my talents to various organizations, including my current role at Wipro, Telstra, Commonwealth Bank of Australia, Standard Chartered Bank, Wells Fargo, HCL Technologies and Cognizant Technology Solutions.
+
+I possess deep expertise in crafting robust and scalable automation frameworks using Java, Python, and TypeScript with tools like Playwright, Selenium, and Cucumber-BDD.
+I pioneered the integration of Copilot AI agents to automatically generate test cases by referencing diverse data sources, significantly improving coverage and speed.
+
+I have led the development of automation frameworks for web, API, and mobile applications, including complex systems like Pega, SAP UI, and Salesforce.
+
+Throughout my career, I have a proven ability to perform as a Solution Architect, defining and developing automation test strategies, and leading rigorous code reviews.
+
+My work has consistently resulted in significant reductions in test execution time and improvements in test accuracy and efficiency.
+
+I'm confident that my background in architecting comprehensive QA solutions will be a valuable asset to any team.
+
+If you like this and if you find any opportunity that is a good fit for my role, please reach out to me at +91 9995667550 or +91 8754175333.
+
+I have also included my email ID in the CV.
+
+Have a good day....Thank you for the opportunity to speak with you :)
+            `.trim();
+
+            let charIndex = 0;
+            const typingSpeed = 60;
+            let boyVoice = null;
+            
+            function findAndSetVoice() {
+                const voices = window.speechSynthesis.getVoices();
+                boyVoice = voices.find(voice => 
+                    voice.lang.startsWith('en-') && 
+                    (voice.name.includes('Male') || voice.name.includes('Boy') || voice.name.includes('Daniel') || voice.name.includes('Alex'))
+                );
+            }
+
+            if (speechSynthesis.getVoices().length === 0) {
+                speechSynthesis.onvoiceschanged = findAndSetVoice;
+            } else {
+                findAndSetVoice();
+            }
+
+            function typeWriter() {
+                if (charIndex < profileText.length) {
+                    contentElement.textContent += profileText.charAt(charIndex);
+                    charIndex++;
+                    terminalContainer.scrollTop = terminalContainer.scrollHeight;
+                    setTimeout(typeWriter, typingSpeed);
+                } else {
+                    cursorElement.style.animation = 'none';
+                    cursorElement.style.visibility = 'hidden';
+                }
+            }
+            
+            typeWriter();
+
+            speakButton.addEventListener('click', () => {
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel();
+                    speakButton.textContent = 'Click me for Voice :)';
+                } else {
+                    const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
+                    const utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
+                    
+                    utterance.pitch = 1.2;
+                    utterance.rate = 1.1;
+                    
+                    if (boyVoice) {
+                        utterance.voice = boyVoice;
+                    }
+
+                    utterance.onend = () => {
+                        speakButton.textContent = 'Click me for Voice :)';
+                    };
+                    
+                    speechSynthesis.speak(utterance);
+                    speakButton.textContent = 'Stop Reading';
+                }
+            });
+
+            const starField = document.getElementById('star-field');
+            const numStars = 100;
+
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.width = star.style.height = `${Math.random() * 2 + 1}px`;
+                star.style.animationDuration = `${Math.random() * 10 + 5}s`;
+                star.style.animationDelay = `${Math.random() * 10}s`;
+                starField.appendChild(star);
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
