@@ -25,20 +25,13 @@
             overflow: hidden;
         }
 
-        .star-field {
+        .matrix-bg {
             position: absolute;
             width: 100%;
             height: 100%;
-            background: transparent;
+            background: black;
+            overflow: hidden;
             z-index: -1;
-        }
-
-        .star-field .star {
-            position: absolute;
-            background: #fff;
-            border-radius: 50%;
-            opacity: 0;
-            animation: moveStars linear infinite, starFlicker 2s infinite alternate;
         }
 
         .container {
@@ -141,20 +134,10 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
-
-        @keyframes moveStars {
-            from { transform: translateY(0); }
-            to { transform: translateY(100vh); }
-        }
-
-        @keyframes starFlicker {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
-        }
     </style>
 </head>
 <body>
-    <div class="star-field" id="star-field"></div>
+    <div class="matrix-bg" id="matrix-bg"></div>
     <button id="speak-button" class="speak-button">Click me for Voice :)</button>
     <div class="container" id="terminal-container">
         <div class="profile-header">
@@ -178,7 +161,7 @@
             const terminalContainer = document.getElementById('terminal-container');
             const speakButton = document.getElementById('speak-button');
             const profileText = `
-                Hello there! My name is Sumith.......
+Hello there! My name is Sumith.......
 
 I've made this CV interactive for you to demonstrate my skills and how much I love innovation and learning.
 Lets Begin.........
@@ -262,23 +245,46 @@ Have a good day....Thank you for the opportunity to speak with you :)
                 }
             });
 
-            const starField = document.getElementById('star-field');
-            const numStars = 100;
+            // MATRIX BACKGROUND
+            const matrixCanvas = document.createElement('canvas');
+            matrixCanvas.id = 'matrix-canvas';
+            document.getElementById('matrix-bg').appendChild(matrixCanvas);
+            const ctx = matrixCanvas.getContext('2d');
 
-            for (let i = 0; i < numStars; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = `${Math.random() * 100}vw`;
-                star.style.top = `${Math.random() * 100}vh`;
-                star.style.width = star.style.height = `${Math.random() * 2 + 1}px`;
-                star.style.animationDuration = `${Math.random() * 10 + 5}s`;
-                star.style.animationDelay = `${Math.random() * 10}s`;
-                starField.appendChild(star);
+            function resizeCanvas() {
+                matrixCanvas.width = window.innerWidth;
+                matrixCanvas.height = window.innerHeight;
             }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            const letters = 'This is Sumith, and this is how I wish to show myself. My email ID is sumith.pa@gmail.com, reach out to me';
+            const fontSize = 16;
+            const columns = Math.floor(matrixCanvas.width / fontSize);
+            const drops = Array(columns).fill(1);
+
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+
+                ctx.fillStyle = '#0F0';
+                ctx.font = fontSize + 'px monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                    if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+
+                requestAnimationFrame(drawMatrix);
+            }
+
+            drawMatrix();
         });
     </script>
 </body>
 </html>
-
-
-
