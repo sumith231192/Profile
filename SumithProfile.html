@@ -1,290 +1,776 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sumith PA - Interactive Profile</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sumith PA — Automation Architect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            font-family: 'Roboto Mono', monospace;
-            background-color: #000;
-            color: #00ff00;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            position: relative;
-            overflow: hidden;
-        }
+    :root {
+      --green: #00ff9f;
+      --green-dim: #00cc7a;
+      --green-dark: #003d25;
+      --green-glow: rgba(0,255,159,0.4);
+      --amber: #ffb300;
+      --red: #ff4444;
+      --bg: #020a06;
+      --panel: rgba(0,18,10,0.92);
+      --border: rgba(0,255,159,0.25);
+      --text: #c8fce8;
+    }
 
-        .matrix-bg {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: black;
-            overflow: hidden;
-            z-index: -1;
-        }
+    html, body {
+      height: 100%; width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      overflow: hidden;
+      cursor: none;
+    }
 
-        .container {
-            width: 90%;
-            max-width: 900px;
-            height: 95vh;
-            background-color: rgba(26, 26, 26, 0.95);
-            border: 2px solid #00ff00;
-            border-radius: 8px;
-            padding: 32px;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.7);
-            overflow-y: auto;
-            position: relative;
-            animation: glowPulse 4s infinite ease-in-out alternate;
-        }
+    /* CUSTOM CURSOR */
+    #cursor-dot {
+      position: fixed; z-index: 9999; pointer-events: none;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 12px var(--green), 0 0 24px var(--green-glow);
+      transform: translate(-50%, -50%);
+      transition: transform 0.05s;
+    }
+    #cursor-ring {
+      position: fixed; z-index: 9998; pointer-events: none;
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1px solid var(--green-dim);
+      transform: translate(-50%, -50%);
+      transition: all 0.12s ease;
+    }
 
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            margin-bottom: 24px;
-            opacity: 0;
-            animation: fadeIn 2s forwards;
-            animation-delay: 1s;
-        }
+    /* MATRIX CANVAS */
+    #matrix-canvas {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0; opacity: 0.18;
+    }
 
-        .profile-img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 3px solid #00ff00;
-            object-fit: cover;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
-            transition: box-shadow 0.3s ease-in-out;
-        }
+    /* SCANLINES */
+    body::after {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.08) 3px,
+        rgba(0,0,0,0.08) 4px
+      );
+      z-index: 1; pointer-events: none;
+    }
 
-        .profile-img:hover {
-            box-shadow: 0 0 25px rgba(0, 255, 0, 0.8);
-        }
+    /* VIGNETTE */
+    body::before {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%);
+      z-index: 1; pointer-events: none;
+    }
 
-        .header-content h1 {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #00ff00;
-            margin-bottom: 8px;
-        }
+    /* MAIN LAYOUT */
+    #app {
+      position: relative; z-index: 2;
+      width: 100%; height: 100vh;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      grid-template-rows: 1fr;
+      gap: 0;
+      overflow: hidden;
+    }
 
-        .header-content h2 {
-            font-size: 1.25rem;
-            color: #00ff00;
-        }
+    /* LEFT PANEL */
+    #left-panel {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      padding: 32px 24px;
+      gap: 24px;
+      overflow-y: auto;
+      position: relative;
+    }
+    #left-panel::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      animation: scanH 3s linear infinite;
+    }
+    @keyframes scanH {
+      0% { transform: translateX(-100%); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateX(100%); opacity: 0; }
+    }
 
-        .terminal {
-            white-space: pre-wrap;
-            line-height: 1.6;
-            font-size: 1rem;
-            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-        }
+    /* AVATAR */
+    .avatar-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+    }
+    .avatar-ring {
+      position: relative; width: 110px; height: 110px;
+    }
+    .avatar-ring svg {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      animation: rotateSVG 8s linear infinite;
+    }
+    @keyframes rotateSVG { to { transform: rotate(360deg); } }
+    .avatar-img {
+      position: absolute; top: 8px; left: 8px;
+      width: 94px; height: 94px; border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--green-dark);
+      box-shadow: 0 0 20px var(--green-glow), inset 0 0 20px rgba(0,0,0,0.5);
+    }
+    .avatar-fallback {
+      position: absolute; top: 8px; left: 8px;
+      width: 94px; height: 94px; border-radius: 50%;
+      background: linear-gradient(135deg, #003d25 0%, #001a10 100%);
+      border: 2px solid var(--green-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.6rem; font-weight: 900;
+      color: var(--green);
+      text-shadow: 0 0 20px var(--green);
+    }
+    .avatar-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--green);
+      text-align: center;
+      text-shadow: 0 0 10px var(--green-glow);
+      letter-spacing: 2px;
+    }
+    .avatar-title {
+      font-size: 0.65rem; color: var(--green-dim);
+      text-align: center; letter-spacing: 1px;
+      line-height: 1.5;
+    }
 
-        .cursor {
-            display: inline-block;
-            background-color: #00ff00;
-            animation: blink 1s infinite;
-            width: 8px;
-            height: 1.2em;
-        }
+    /* STATUS BADGE */
+    .status-badge {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(0,255,159,0.06);
+      border: 1px solid rgba(0,255,159,0.2);
+      border-radius: 4px; padding: 6px 12px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 4px var(--green); transform: scale(1); }
+      50% { box-shadow: 0 0 12px var(--green), 0 0 24px var(--green-glow); transform: scale(1.2); }
+    }
+    .status-text { font-size: 0.65rem; color: var(--green); letter-spacing: 1px; }
 
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
+    /* DIVIDER */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
 
-        .speak-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #00ff00;
-            color: #000;
-            border: none;
-            padding: 12px 24px;
-            font-family: 'Roboto Mono', monospace;
-            cursor: pointer;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-            transition: all 0.3s ease-in-out;
-            z-index: 1000;
-        }
+    /* STATS GRID */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-box {
+      background: rgba(0,255,159,0.04);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 8px; text-align: center;
+      transition: all 0.3s;
+    }
+    .stat-box:hover {
+      background: rgba(0,255,159,0.08);
+      border-color: var(--green-dim);
+      box-shadow: 0 0 10px rgba(0,255,159,0.15);
+    }
+    .stat-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--green); line-height: 1;
+      text-shadow: 0 0 8px var(--green-glow);
+    }
+    .stat-label { font-size: 0.55rem; color: #5a9e7a; margin-top: 4px; letter-spacing: 0.5px; }
 
-        .speak-button:hover {
-            background-color: #00e000;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
-            transform: scale(1.05);
-        }
+    /* SKILL BARS */
+    .skills-section { display: flex; flex-direction: column; gap: 8px; }
+    .skill-label-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+    .skill-name { font-size: 0.62rem; color: var(--green-dim); letter-spacing: 0.5px; }
+    .skill-pct { font-size: 0.62rem; color: var(--green); }
+    .skill-track {
+      height: 4px; background: rgba(0,255,159,0.1);
+      border-radius: 2px; overflow: hidden;
+    }
+    .skill-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--green-dim), var(--green));
+      box-shadow: 0 0 6px var(--green-glow);
+      width: 0; transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+    }
 
-        @keyframes glowPulse {
-            0% { box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); transform: scale(1); }
-            100% { box-shadow: 0 0 40px rgba(0, 255, 0, 0.9); transform: scale(1.01); }
-        }
+    /* CONTACT INFO */
+    .contact-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.62rem; color: #5a9e7a;
+      padding: 4px 0;
+    }
+    .contact-item span:first-child { color: var(--green); min-width: 14px; text-align: center; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
+    /* RIGHT PANEL */
+    #right-panel {
+      display: flex; flex-direction: column;
+      overflow: hidden; position: relative;
+    }
+
+    /* TOP BAR */
+    #top-bar {
+      background: rgba(0,10,5,0.8);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .top-bar-left { display: flex; align-items: center; gap: 16px; }
+    .terminal-dots { display: flex; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f56; box-shadow: 0 0 6px #ff5f5680; }
+    .dot-y { background: #ffbd2e; box-shadow: 0 0 6px #ffbd2e80; }
+    .dot-g { background: var(--green); box-shadow: 0 0 6px var(--green-glow); }
+    .terminal-title { font-size: 0.7rem; color: #5a9e7a; letter-spacing: 2px; }
+    .top-bar-right { display: flex; align-items: center; gap: 12px; }
+
+    /* VOICE BUTTON */
+    #voice-btn {
+      background: transparent;
+      border: 1px solid var(--green-dim);
+      color: var(--green);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      padding: 6px 14px;
+      border-radius: 3px; cursor: none;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    #voice-btn::before {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0,255,159,0.15), transparent);
+      transition: left 0.4s;
+    }
+    #voice-btn:hover { border-color: var(--green); box-shadow: 0 0 15px var(--green-glow); }
+    #voice-btn:hover::before { left: 100%; }
+    #voice-btn.active {
+      background: rgba(0,255,159,0.1);
+      border-color: var(--green);
+      box-shadow: 0 0 20px var(--green-glow);
+      animation: voicePulse 1s ease-in-out infinite;
+    }
+    @keyframes voicePulse {
+      0%, 100% { box-shadow: 0 0 10px var(--green-glow); }
+      50% { box-shadow: 0 0 25px var(--green), 0 0 40px var(--green-glow); }
+    }
+
+    /* AUDIO WAVEFORM */
+    #waveform {
+      display: flex; align-items: center; gap: 2px; height: 20px;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    #waveform.active { opacity: 1; }
+    .wave-bar {
+      width: 3px; border-radius: 2px;
+      background: var(--green);
+      animation: waveAnim 0.8s ease-in-out infinite;
+      box-shadow: 0 0 4px var(--green-glow);
+    }
+    .wave-bar:nth-child(1) { animation-delay: 0.0s; }
+    .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+    .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+    .wave-bar:nth-child(6) { animation-delay: 0.15s; }
+    .wave-bar:nth-child(7) { animation-delay: 0.25s; }
+    @keyframes waveAnim {
+      0%, 100% { height: 4px; }
+      50% { height: 18px; }
+    }
+
+    /* TERMINAL BODY */
+    #terminal-body {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      padding: 24px 28px;
+      scroll-behavior: smooth;
+    }
+    #terminal-body::-webkit-scrollbar { width: 4px; }
+    #terminal-body::-webkit-scrollbar-track { background: transparent; }
+    #terminal-body::-webkit-scrollbar-thumb { background: var(--green-dark); border-radius: 2px; }
+
+    /* PROMPT LINE */
+    .prompt-line {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 3px;
+    }
+    .prompt-symbol {
+      color: var(--green); font-size: 0.85rem; flex-shrink: 0;
+      line-height: 1.7; text-shadow: 0 0 8px var(--green-glow);
+    }
+
+    /* TERMINAL TEXT */
+    #terminal-text {
+      font-size: 0.9rem; line-height: 1.8;
+      color: var(--text);
+      white-space: pre-wrap;
+      text-shadow: 0 0 3px rgba(0,255,159,0.2);
+    }
+    .highlight { color: var(--green); font-weight: bold; text-shadow: 0 0 8px var(--green-glow); }
+    .amber { color: var(--amber); text-shadow: 0 0 6px rgba(255,179,0,0.4); }
+    .dim { color: #4a7a5a; }
+
+    /* CURSOR */
+    #cursor-blink {
+      display: inline-block;
+      width: 9px; height: 1em;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: blink 1s steps(1) infinite;
+      vertical-align: text-bottom;
+      margin-left: 2px;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* BOTTOM BAR */
+    #bottom-bar {
+      background: rgba(0,10,5,0.9);
+      border-top: 1px solid var(--border);
+      padding: 6px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .bottom-info { font-size: 0.6rem; color: #3a6a4a; letter-spacing: 1px; }
+    #progress-wrap { display: flex; align-items: center; gap: 10px; }
+    #progress-label { font-size: 0.6rem; color: #4a8a5a; }
+    #progress-track {
+      width: 160px; height: 3px;
+      background: rgba(0,255,159,0.1); border-radius: 2px; overflow: hidden;
+    }
+    #progress-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--green-dim), var(--green));
+      box-shadow: 0 0 6px var(--green-glow);
+      transition: width 0.1s linear;
+      border-radius: 2px;
+    }
+
+    /* GLITCH EFFECT */
+    .glitch {
+      position: relative;
+      animation: glitchOccasional 8s infinite;
+    }
+    @keyframes glitchOccasional {
+      0%, 92%, 100% { text-shadow: 0 0 10px var(--green); }
+      93% { text-shadow: -2px 0 var(--red), 2px 0 #0ff; clip-path: inset(10% 0 80% 0); }
+      94% { text-shadow: 2px 0 var(--red), -2px 0 #0ff; clip-path: inset(60% 0 20% 0); }
+      95% { text-shadow: 0 0 10px var(--green); clip-path: none; }
+    }
+
+    /* SECTION TAGS */
+    .tag {
+      display: inline-block;
+      color: var(--amber); font-size: 0.75rem;
+      text-shadow: 0 0 8px rgba(255,179,0,0.5);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 700px) {
+      #app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      #left-panel { padding: 20px 16px; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 12px; }
+      .stats-grid { display: none; }
+      .skills-section { display: none; }
+    }
+
+    /* FADE IN */
+    .fade-in { animation: fadeUp 0.8s ease forwards; opacity: 0; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
-    <div class="matrix-bg" id="matrix-bg"></div>
-    <button id="speak-button" class="speak-button">Click me for Voice :)</button>
-    <div class="container" id="terminal-container">
-        <div class="profile-header">
-            <img src="image2.jpg" alt="" class="profile-img">
-            <div class="header-content">
-                <h1>Sumith PA</h1>
-                <h2>Senior Software Development Engineer in Test</h2>
-                <h2>(Lead Automation Framework Architect)</h2>
-            </div>
-        </div>
-        
-        <div class="terminal" id="terminal">
-            <span id="content"></span>
-            <span id="cursor" class="cursor"></span>
-        </div>
+
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<canvas id="matrix-canvas"></canvas>
+
+<div id="app">
+
+  <!-- LEFT PANEL -->
+  <div id="left-panel">
+
+    <!-- Avatar -->
+    <div class="avatar-wrap fade-in" style="animation-delay:0.2s">
+      <div class="avatar-ring">
+        <svg viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="55" cy="55" r="50" stroke="#00ff9f" stroke-width="1" stroke-dasharray="6 4" opacity="0.5"/>
+          <circle cx="55" cy="55" r="44" stroke="#00cc7a" stroke-width="0.5" stroke-dasharray="2 8" opacity="0.3"/>
+          <circle cx="55" cy="5" r="3" fill="#00ff9f" opacity="0.8"/>
+          <circle cx="55" cy="105" r="2" fill="#00cc7a" opacity="0.5"/>
+          <circle cx="5" cy="55" r="2" fill="#00cc7a" opacity="0.5"/>
+          <circle cx="105" cy="55" r="3" fill="#00ff9f" opacity="0.8"/>
+        </svg>
+        <div class="avatar-fallback">SPA</div>
+      </div>
+      <div class="avatar-name glitch">SUMITH PA</div>
+      <div class="avatar-title">SENIOR AUTOMATION ARCHITECT<br>AI-DRIVEN TEST AUTOMATION LEADER</div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const contentElement = document.getElementById('content');
-            const cursorElement = document.getElementById('cursor');
-            const terminalContainer = document.getElementById('terminal-container');
-            const speakButton = document.getElementById('speak-button');
-            const profileText = `
-Hello there! My name is Sumith.......
 
-I've made this CV interactive for you to demonstrate my skills and how much I love innovation and learning.
-Lets Begin.........
+    <!-- Status -->
+    <div class="status-badge fade-in" style="animation-delay:0.4s">
+      <div class="status-dot"></div>
+      <span class="status-text">// AVAILABLE · BANGALORE, INDIA</span>
+    </div>
 
-I work as a Lead Software Development Engineer in Test and have 12+ years of experience in QA, Automation framework development and Automated testing. 
-I began my career as a Java developer, then transitioned into an automation architect role to develop automation frameworks that are reliable and extensible.
+    <div class="divider"></div>
 
-I have contributed my talents to various organizations, including Telstra, Commonwealth Bank of Australia, Standard Chartered Bank, Wells Fargo, HCL Technologies and Cognizant Technology Solutions. 
+    <!-- Stats -->
+    <div class="stats-grid fade-in" style="animation-delay:0.6s">
+      <div class="stat-box">
+        <div class="stat-num">13+</div>
+        <div class="stat-label">YEARS XP</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">150+</div>
+        <div class="stat-label">TEAMS SERVED</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">40%</div>
+        <div class="stat-label">FASTER TESTS</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">40%</div>
+        <div class="stat-label">AI EFFORT CUT</div>
+      </div>
+    </div>
 
-I possess deep expertise in crafting robust and scalable automation frameworks using Java, Python, and TypeScript with tools like Playwright, Selenium, and Cucumber-BDD. 
-I pioneered the integration of Copilot AI agents to automatically generate test cases by referencing diverse data sources, significantly improving coverage and speed. 
+    <div class="divider"></div>
 
-I have led the development of automation frameworks for web, API, and mobile applications, including complex systems like Pega, SAP UI, and Salesforce. 
+    <!-- Skill bars -->
+    <div class="skills-section fade-in" style="animation-delay:0.8s">
+      <div style="font-size:0.6rem; color:#3a6a4a; letter-spacing:2px; margin-bottom:6px;">// CORE SKILLS</div>
+      <div id="skill-list"></div>
+    </div>
 
-Throughout my career, I have a proven ability to perform as a Solution Architect, defining and developing automation test strategies, and leading rigorous code reviews. 
+    <div class="divider"></div>
 
-My work has consistently resulted in significant reductions in test execution time and improvements in test accuracy and efficiency.
+    <!-- Contact -->
+    <div class="fade-in" style="animation-delay:1s">
+      <div style="font-size:0.6rem; color:#3a6a4a; letter-spacing:2px; margin-bottom:8px;">// CONTACT</div>
+      <div class="contact-item"><span>▸</span><span>+91 9995667550</span></div>
+      <div class="contact-item"><span>▸</span><span>+91 8754175333</span></div>
+      <div class="contact-item"><span>▸</span><span>sumith.ajith.2392@gmail.com</span></div>
+    </div>
 
-I'm confident that my background in architecting comprehensive QA solutions will be a valuable asset to any team.
+  </div>
 
-If you like this and if you find any opportunity that is a good fit for my role, please reach out to me at +91 9995667550 or +91 8754175333.
+  <!-- RIGHT PANEL -->
+  <div id="right-panel">
 
-I have also included my email ID in the CV.
+    <!-- Top bar -->
+    <div id="top-bar">
+      <div class="top-bar-left">
+        <div class="terminal-dots">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+        </div>
+        <span class="terminal-title">SUMITH_PA.exe — INTERACTIVE PROFILE v2.0</span>
+      </div>
+      <div class="top-bar-right">
+        <div id="waveform">
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+        </div>
+        <button id="voice-btn">▶ PLAY VOICE</button>
+      </div>
+    </div>
 
-Have a good day....Thank you for the opportunity to speak with you :)
-            `.trim();
+    <!-- Terminal body -->
+    <div id="terminal-body">
+      <div class="prompt-line">
+        <span class="prompt-symbol">❯</span>
+        <div>
+          <span class="dim">sumith@architect:~$</span>
+          <span class="highlight"> ./introduce_myself.sh</span>
+        </div>
+      </div>
+      <div style="margin-bottom:16px; margin-left:20px;">
+        <span class="dim" style="font-size:0.7rem;">// Loading profile... </span>
+        <span class="amber" style="font-size:0.7rem;">✓ AUTHENTICATED</span>
+      </div>
+      <div id="terminal-text"><span id="cursor-blink"></span></div>
+    </div>
 
-            let charIndex = 0;
-            const typingSpeed = 60;
-            let boyVoice = null;
-            
-            function findAndSetVoice() {
-                const voices = window.speechSynthesis.getVoices();
-                boyVoice = voices.find(voice => 
-                    voice.lang.startsWith('en-') && 
-                    (voice.name.includes('Male') || voice.name.includes('Boy') || voice.name.includes('Daniel') || voice.name.includes('Alex'))
-                );
-            }
+    <!-- Bottom bar -->
+    <div id="bottom-bar">
+      <span class="bottom-info">ENCODING: UTF-8 · LF · SHELL</span>
+      <div id="progress-wrap">
+        <span id="progress-label">LOADING...</span>
+        <div id="progress-track"><div id="progress-fill"></div></div>
+      </div>
+      <span class="bottom-info" id="char-count">0 CHARS</span>
+    </div>
 
-            if (speechSynthesis.getVoices().length === 0) {
-                speechSynthesis.onvoiceschanged = findAndSetVoice;
-            } else {
-                findAndSetVoice();
-            }
+  </div>
+</div>
 
-            function typeWriter() {
-                if (charIndex < profileText.length) {
-                    contentElement.textContent += profileText.charAt(charIndex);
-                    charIndex++;
-                    terminalContainer.scrollTop = terminalContainer.scrollHeight;
-                    setTimeout(typeWriter, typingSpeed);
-                } else {
-                    cursorElement.style.animation = 'none';
-                    cursorElement.style.visibility = 'hidden';
-                }
-            }
-            
-            typeWriter();
+<script>
+// ── CUSTOM CURSOR ──────────────────────────────────
+const dot = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+document.addEventListener('mousemove', e => {
+  dot.style.left = e.clientX + 'px';
+  dot.style.top = e.clientY + 'px';
+  ring.style.left = e.clientX + 'px';
+  ring.style.top = e.clientY + 'px';
+});
+document.querySelectorAll('button, .stat-box').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    ring.style.transform = 'translate(-50%,-50%) scale(1.6)';
+    ring.style.borderColor = 'var(--green)';
+  });
+  el.addEventListener('mouseleave', () => {
+    ring.style.transform = 'translate(-50%,-50%) scale(1)';
+    ring.style.borderColor = 'var(--green-dim)';
+  });
+});
 
-            speakButton.addEventListener('click', () => {
-                if (speechSynthesis.speaking) {
-                    speechSynthesis.cancel();
-                    speakButton.textContent = 'Click me for Voice :)';
-                } else {
-                    const profileTextToSpeak = profileText.replace(/\*/g, '').replace(/\$/g, '').trim();
-                    const utterance = new SpeechSynthesisUtterance(profileTextToSpeak);
-                    
-                    utterance.pitch = 1.2;
-                    utterance.rate = 1.1;
-                    
-                    if (boyVoice) {
-                        utterance.voice = boyVoice;
-                    }
+// ── MATRIX BACKGROUND ────────────────────────────
+const canvas = document.getElementById('matrix-canvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas() { canvas.width = innerWidth; canvas.height = innerHeight; }
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
 
-                    utterance.onend = () => {
-                        speakButton.textContent = 'Click me for Voice :)';
-                    };
-                    
-                    speechSynthesis.speak(utterance);
-                    speakButton.textContent = 'Stop Reading';
-                }
-            });
+const matrixChars = '01アイウエオカキクケコSUMITHPAQAARCHITECT';
+const fontSize = 14;
+const cols = Math.floor(canvas.width / fontSize);
+const drops = Array(cols).fill(0);
 
-            // MATRIX BACKGROUND
-            const matrixCanvas = document.createElement('canvas');
-            matrixCanvas.id = 'matrix-canvas';
-            document.getElementById('matrix-bg').appendChild(matrixCanvas);
-            const ctx = matrixCanvas.getContext('2d');
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(2,10,6,0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < drops.length; i++) {
+    const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+    const brightness = Math.random();
+    ctx.fillStyle = brightness > 0.95 ? '#ffffff' : brightness > 0.8 ? '#00ff9f' : '#00662a';
+    ctx.font = fontSize + 'px Share Tech Mono';
+    ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+  requestAnimationFrame(drawMatrix);
+}
+drawMatrix();
 
-            function resizeCanvas() {
-                matrixCanvas.width = window.innerWidth;
-                matrixCanvas.height = window.innerHeight;
-            }
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
+// ── SKILL BARS ────────────────────────────────────
+const skills = [
+  { name: 'PLAYWRIGHT / SELENIUM',  pct: 98 },
+  { name: 'JAVA / PYTHON / TS',     pct: 95 },
+  { name: 'AI AGENTIC AUTOMATION',  pct: 92 },
+  { name: 'CI/CD & AWS LAMBDA',     pct: 88 },
+  { name: 'FRAMEWORK ARCHITECTURE', pct: 97 },
+  { name: 'REST ASSURED / KARATE',  pct: 90 },
+];
+const skillList = document.getElementById('skill-list');
+skills.forEach(s => {
+  skillList.innerHTML += `
+    <div style="margin-bottom:10px">
+      <div class="skill-label-row">
+        <span class="skill-name">${s.name}</span>
+        <span class="skill-pct">${s.pct}%</span>
+      </div>
+      <div class="skill-track">
+        <div class="skill-fill" data-pct="${s.pct}"></div>
+      </div>
+    </div>`;
+});
+setTimeout(() => {
+  document.querySelectorAll('.skill-fill').forEach(el => {
+    el.style.width = el.dataset.pct + '%';
+  });
+}, 800);
 
-            const letters = 'This is Sumith, and this is how I wish to show myself. My email ID is sumith.pa@gmail.com, reach out to me';
-            const fontSize = 16;
-            const columns = Math.floor(matrixCanvas.width / fontSize);
-            const drops = Array(columns).fill(1);
+// ── TYPEWRITER ────────────────────────────────────
+const profileText = `<span class="tag">/** HELLO WORLD **/</span>
 
-            function drawMatrix() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-                ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+Hello there! My name is <span class="highlight">Sumith</span>...
 
-                ctx.fillStyle = '#0F0';
-                ctx.font = fontSize + 'px monospace';
+I built this interactive profile to demonstrate that I bring something beyond testing — <span class="highlight">innovation, creativity, and a genuine love for engineering</span>.
 
-                for (let i = 0; i < drops.length; i++) {
-                    const text = letters.charAt(Math.floor(Math.random() * letters.length));
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+<span class="tag">/** WHO I AM **/</span>
 
-                    if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
-                    drops[i]++;
-                }
+I work as a <span class="highlight">Senior Automation Architect</span> and <span class="highlight">Lead SDET</span> with <span class="highlight">13+ years</span> of experience building enterprise-grade test automation frameworks that actually <span class="amber">scale</span>.
 
-                requestAnimationFrame(drawMatrix);
-            }
+I started my career as a <span class="highlight">Java developer</span>, then transitioned into automation architecture — bringing a developer's mindset to quality engineering. That foundation is why the frameworks I build are robust, extensible, and production-grade.
 
-            drawMatrix();
-        });
-    </script>
+<span class="tag">/** WHERE I'VE WORKED **/</span>
+
+I've contributed to world-class organisations:
+  <span class="amber">▸</span> <span class="highlight">Telstra</span>         — Built frameworks adopted by 150+ teams. Reduced regression time by 40%.
+  <span class="amber">▸</span> <span class="highlight">CBA</span>             — Built the QA practice from scratch. Led ISO 20022 banking migration.
+  <span class="amber">▸</span> <span class="highlight">Standard Chartered</span> — Automated KYC, onboarding & core banking workflows.
+  <span class="amber">▸</span> <span class="highlight">Wells Fargo</span>     — Automated Pega & treasury systems with Cucumber-TestNG.
+  <span class="amber">▸</span> <span class="highlight">HCL / BNP Paribas</span> — Designed REST & UI frameworks for core banking.
+  <span class="amber">▸</span> <span class="highlight">Cognizant</span>       — Built CRAFT framework for Insurance & Healthcare clients.
+
+<span class="tag">/** WHAT MAKES ME DIFFERENT **/</span>
+
+I <span class="highlight">pioneered AI-driven agentic automation</span> — integrating Large Language Models with Jira and Confluence to automatically generate Cucumber BDD test cases directly from user stories and architecture documents. This cut manual test design effort by <span class="amber">40%</span>.
+
+I don't just write tests. I build <span class="highlight">strategies, pipelines, metrics dashboards, and the teams</span> that sustain quality at enterprise scale.
+
+<span class="tag">/** LET'S CONNECT **/</span>
+
+If you see a great opportunity that fits my profile, please reach out:
+  <span class="amber">▸</span> Phone:  <span class="highlight">+91 9995667550</span>  or  <span class="highlight">+91 8754175333</span>
+  <span class="amber">▸</span> Email:  <span class="highlight">sumith.ajith.2392@gmail.com</span>
+
+Thank you for taking the time. Have a great day! <span class="amber">:)</span>`;
+
+const terminalEl = document.getElementById('terminal-text');
+const cursor = document.getElementById('cursor-blink');
+const progressFill = document.getElementById('progress-fill');
+const progressLabel = document.getElementById('progress-label');
+const charCount = document.getElementById('char-count');
+
+// Strip HTML tags for plain text length calculation
+const plainText = profileText.replace(/<[^>]+>/g, '');
+let charIndex = 0;
+let renderedHTML = '';
+let sourceIndex = 0;
+const speed = 22;
+
+function typeNext() {
+  if (sourceIndex >= profileText.length) {
+    cursor.style.display = 'none';
+    progressLabel.textContent = 'COMPLETE';
+    progressFill.style.width = '100%';
+    charCount.textContent = plainText.length + ' CHARS';
+    return;
+  }
+  // If we're entering a tag, skip it all at once
+  if (profileText[sourceIndex] === '<') {
+    const end = profileText.indexOf('>', sourceIndex);
+    if (end !== -1) {
+      renderedHTML += profileText.slice(sourceIndex, end + 1);
+      sourceIndex = end + 1;
+      terminalEl.innerHTML = renderedHTML + '<span id="cursor-blink" style="display:inline-block;width:9px;height:1em;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1s steps(1) infinite;vertical-align:text-bottom;margin-left:2px;"></span>';
+      setTimeout(typeNext, speed);
+      return;
+    }
+  }
+  renderedHTML += profileText[sourceIndex];
+  sourceIndex++;
+  charIndex++;
+  const pct = Math.round((charIndex / plainText.length) * 100);
+  progressFill.style.width = Math.min(pct, 100) + '%';
+  progressLabel.textContent = pct + '%';
+  charCount.textContent = charIndex + ' CHARS';
+  terminalEl.innerHTML = renderedHTML + '<span id="cursor-blink" style="display:inline-block;width:9px;height:1em;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1s steps(1) infinite;vertical-align:text-bottom;margin-left:2px;"></span>';
+  const tb = document.getElementById('terminal-body');
+  tb.scrollTop = tb.scrollHeight;
+  setTimeout(typeNext, speed);
+}
+setTimeout(typeNext, 1200);
+
+// -- VOICE SPEECH --
+const voiceBtn = document.getElementById('voice-btn');
+const waveform = document.getElementById('waveform');
+let speaking = false;
+
+const speechParagraphs = [
+  "Hey! My name is Sumith, and I'm really excited you're here.",
+  "I built this profile to show you something a bit different — not just a CV, but who I actually am as an engineer.",
+  "So, who am I?",
+  "I'm a Senior Automation Architect. Thirteen-plus years. I build test automation frameworks that scale to hundreds of teams — and I genuinely love every bit of it.",
+  "I started out as a Java developer, which is honestly what sets me apart. I think like a developer, not just a tester. That's why my frameworks are solid, extensible, and built to last.",
+  "I've worked with some brilliant teams. At Telstra, the framework I built was adopted by over a hundred and fifty teams and cut their regression testing time by forty percent.",
+  "At Commonwealth Bank of Australia, I built the entire QA practice from zero. At Standard Chartered, I automated core banking workflows including KYC and customer onboarding. I've led teams, shaped strategy, and delivered at scale across all of these organisations.",
+  "Here's what really excites me right now — AI in testing. I've built what I call agentic automation. An AI that reads your Jira user stories, understands your architecture, and writes your test cases automatically. Already live. Already cutting manual effort by forty percent.",
+  "I don't just test software. I build the systems, the teams, and the strategy that make quality sustainable.",
+  "If any of this resonates, I'd love to chat. Reach me on plus ninety one, nine nine nine five, six six seven, five five zero.",
+  "Thanks for listening. Hope to connect soon — have a great day!"
+];
+
+let paragraphIndex = 0;
+
+function speakNext() {
+  if (!speaking || paragraphIndex >= speechParagraphs.length) {
+    speaking = false;
+    paragraphIndex = 0;
+    voiceBtn.textContent = '\u25B6 PLAY VOICE';
+    voiceBtn.classList.remove('active');
+    waveform.classList.remove('active');
+    return;
+  }
+  const utterance = new SpeechSynthesisUtterance(speechParagraphs[paragraphIndex]);
+  utterance.pitch = 1.0;    // Natural male tone — not too high, not too deep
+  utterance.rate = 1.05;    // Slightly faster than normal — lively and energetic
+  utterance.volume = 1;
+  const voices = speechSynthesis.getVoices();
+  const preferred =
+    voices.find(v => v.name === 'Google UK English Male') ||
+    voices.find(v => v.name === 'Daniel') ||
+    voices.find(v => v.name === 'Arthur') ||
+    voices.find(v => v.name === 'Aaron') ||
+    voices.find(v => v.name === 'Alex') ||
+    voices.find(v => v.name === 'Fred') ||
+    voices.find(v => v.name === 'Reed') ||
+    voices.find(v => v.name === 'Thomas') ||
+    voices.find(v => v.name.includes('Male') && v.lang.startsWith('en')) ||
+    voices.find(v => v.lang === 'en-GB') ||
+    voices.find(v => v.lang === 'en-US' && !v.name.toLowerCase().includes('female') && !v.name.toLowerCase().includes('woman'));
+  if (preferred) utterance.voice = preferred;
+  utterance.onend = () => {
+    paragraphIndex++;
+    const pauseMs = paragraphIndex === 2 ? 300 : 120;
+    setTimeout(speakNext, pauseMs);
+  };
+  utterance.onerror = () => { paragraphIndex++; speakNext(); };
+  speechSynthesis.speak(utterance);
+}
+
+voiceBtn.addEventListener('click', () => {
+  if (speaking) {
+    speechSynthesis.cancel();
+    speaking = false;
+    paragraphIndex = 0;
+    voiceBtn.textContent = '\u25B6 PLAY VOICE';
+    voiceBtn.classList.remove('active');
+    waveform.classList.remove('active');
+    return;
+  }
+  speaking = true;
+  paragraphIndex = 0;
+  voiceBtn.textContent = '\u25A0 STOP';
+  voiceBtn.classList.add('active');
+  waveform.classList.add('active');
+  // Small delay so voices are loaded
+  setTimeout(speakNext, 200);
+});
+
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = () => {};
+}
+</script>
 </body>
 </html>
