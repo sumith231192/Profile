@@ -7,212 +7,65 @@
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --green: #00ff9f;
-      --green-dim: #00cc7a;
-      --green-dark: #003d25;
-      --green-glow: rgba(0,255,159,0.4);
-      --amber: #ffb300;
-      --red: #ff4444;
-      --bg: #020a06;
-      --panel: rgba(0,18,10,0.92);
-      --border: rgba(0,255,159,0.25);
-      --text: #c8fce8;
+      --green: #00ff9f; --green-dim: #00cc7a; --green-dark: #003d25;
+      --green-glow: rgba(0,255,159,0.4); --amber: #ffb300; --red: #ff4444;
+      --bg: #020a06; --panel: rgba(0,18,10,0.92); --border: rgba(0,255,159,0.25); --text: #c8fce8;
     }
-
-    html, body {
-      height: 100%; width: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Share Tech Mono', monospace;
-      overflow-x: hidden;
-    }
-
-    /* CUSTOM CURSOR — desktop only */
+    html, body { height: 100%; width: 100%; background: var(--bg); color: var(--text); font-family: 'Share Tech Mono', monospace; overflow-x: hidden; }
     html, body { cursor: none; }
-    @media (hover: none) and (pointer: coarse) {
-      html, body { cursor: auto; }
-    }
-
-    #cursor-dot {
-      position: fixed; z-index: 9999; pointer-events: none;
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 12px var(--green), 0 0 24px var(--green-glow);
-      transform: translate(-50%, -50%);
-      left: -100px; top: -100px;
-    }
-    #cursor-ring {
-      position: fixed; z-index: 9998; pointer-events: none;
-      width: 28px; height: 28px; border-radius: 50%;
-      border: 1.5px solid var(--green-dim);
-      transform: translate(-50%, -50%);
-      transition: width 0.12s ease, height 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
-      left: -100px; top: -100px;
-    }
-    @media (hover: none) and (pointer: coarse) {
-      #cursor-dot, #cursor-ring { display: none; }
-    }
-
-    /* MATRIX CANVAS */
-    #matrix-canvas {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      z-index: 0; opacity: 0.18;
-    }
-
-    body::after {
-      content: '';
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
-      z-index: 1; pointer-events: none;
-    }
-    body::before {
-      content: '';
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%);
-      z-index: 1; pointer-events: none;
-    }
-
-    #app {
-      position: relative; z-index: 2;
-      width: 100%; min-height: 100vh;
-      display: flex; flex-direction: column;
-    }
-    @media (min-width: 768px) {
-      #app { flex-direction: row; height: 100vh; overflow: hidden; }
-    }
-
-    /* LEFT PANEL */
-    #left-panel {
-      background: var(--panel);
-      border-bottom: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      padding: 24px 20px; gap: 18px;
-      position: relative; flex-shrink: 0;
-    }
-    @media (min-width: 768px) {
-      #left-panel {
-        width: 300px; border-bottom: none;
-        border-right: 1px solid var(--border);
-        overflow-y: auto; padding: 32px 24px; gap: 24px;
-      }
-    }
-    #left-panel::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, transparent, var(--green), transparent);
-      animation: scanH 3s linear infinite;
-    }
-    @keyframes scanH {
-      0% { transform: translateX(-100%); opacity: 0; }
-      50% { opacity: 1; }
-      100% { transform: translateX(100%); opacity: 0; }
-    }
-
+    @media (hover: none) and (pointer: coarse) { html, body { cursor: auto; } }
+    #cursor-dot { position: fixed; z-index: 9999; pointer-events: none; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green), 0 0 24px var(--green-glow); transform: translate(-50%, -50%); left: -100px; top: -100px; }
+    #cursor-ring { position: fixed; z-index: 9998; pointer-events: none; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--green-dim); transform: translate(-50%, -50%); transition: width 0.12s ease, height 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease; left: -100px; top: -100px; }
+    @media (hover: none) and (pointer: coarse) { #cursor-dot, #cursor-ring { display: none; } }
+    #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.18; }
+    body::after { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px); z-index: 1; pointer-events: none; }
+    body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%); z-index: 1; pointer-events: none; }
+    #app { position: relative; z-index: 2; width: 100%; min-height: 100vh; display: flex; flex-direction: column; }
+    @media (min-width: 768px) { #app { flex-direction: row; height: 100vh; overflow: hidden; } }
+    #left-panel { background: var(--panel); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 20px; gap: 18px; position: relative; flex-shrink: 0; }
+    @media (min-width: 768px) { #left-panel { width: 300px; border-bottom: none; border-right: 1px solid var(--border); overflow-y: auto; padding: 32px 24px; gap: 24px; } }
+    #left-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--green), transparent); animation: scanH 3s linear infinite; }
+    @keyframes scanH { 0% { transform: translateX(-100%); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }
     .mobile-header { display: flex; align-items: center; gap: 16px; }
-    @media (min-width: 768px) {
-      .mobile-header { flex-direction: column; align-items: center; gap: 12px; }
-    }
-
+    @media (min-width: 768px) { .mobile-header { flex-direction: column; align-items: center; gap: 12px; } }
     .avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
     .avatar-ring { position: relative; width: 72px; height: 72px; }
     @media (min-width: 768px) { .avatar-ring { width: 110px; height: 110px; } }
-    .avatar-ring svg {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      animation: rotateSVG 8s linear infinite;
-    }
+    .avatar-ring svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; animation: rotateSVG 8s linear infinite; }
     @keyframes rotateSVG { to { transform: rotate(360deg); } }
-    .avatar-fallback {
-      position: absolute; top: 5px; left: 5px;
-      width: calc(100% - 10px); height: calc(100% - 10px);
-      border-radius: 50%;
-      background: linear-gradient(135deg, #003d25 0%, #001a10 100%);
-      border: 2px solid var(--green-dark);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1rem; font-weight: 900;
-      color: var(--green); text-shadow: 0 0 20px var(--green);
-    }
-    @media (min-width: 768px) {
-      .avatar-fallback { top: 8px; left: 8px; width: 94px; height: 94px; font-size: 1.6rem; }
-    }
-    .avatar-name {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.1rem; font-weight: 700; color: var(--green);
-      text-align: center; text-shadow: 0 0 10px var(--green-glow); letter-spacing: 2px;
-    }
-    .avatar-title {
-      font-size: 0.65rem; color: var(--green-dim);
-      text-align: center; letter-spacing: 1px; line-height: 1.5; display: none;
-    }
+    .avatar-fallback { position: absolute; top: 5px; left: 5px; width: calc(100% - 10px); height: calc(100% - 10px); border-radius: 50%; background: linear-gradient(135deg, #003d25 0%, #001a10 100%); border: 2px solid var(--green-dark); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; color: var(--green); text-shadow: 0 0 20px var(--green); }
+    @media (min-width: 768px) { .avatar-fallback { top: 8px; left: 8px; width: 94px; height: 94px; font-size: 1.6rem; } }
+    .avatar-name { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--green); text-align: center; text-shadow: 0 0 10px var(--green-glow); letter-spacing: 2px; }
+    .avatar-title { font-size: 0.65rem; color: var(--green-dim); text-align: center; letter-spacing: 1px; line-height: 1.5; display: none; }
     @media (min-width: 768px) { .avatar-title { display: block; } }
-
     .mobile-text-block { flex: 1; display: flex; flex-direction: column; gap: 6px; }
     @media (min-width: 768px) { .mobile-text-block { display: none; } }
-    .mobile-name {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.9rem; font-weight: 700; color: var(--green);
-      text-shadow: 0 0 10px var(--green-glow); letter-spacing: 1px;
-    }
+    .mobile-name { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--green); text-shadow: 0 0 10px var(--green-glow); letter-spacing: 1px; }
     .mobile-role { font-size: 0.58rem; color: var(--green-dim); line-height: 1.5; }
-
-    .status-badge {
-      display: flex; align-items: center; gap: 8px;
-      background: rgba(0,255,159,0.06); border: 1px solid rgba(0,255,159,0.2);
-      border-radius: 4px; padding: 6px 12px;
-    }
-    .status-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--green); box-shadow: 0 0 8px var(--green);
-      animation: pulse 2s ease-in-out infinite; flex-shrink: 0;
-    }
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 4px var(--green); transform: scale(1); }
-      50% { box-shadow: 0 0 12px var(--green), 0 0 24px var(--green-glow); transform: scale(1.2); }
-    }
+    .status-badge { display: flex; align-items: center; gap: 8px; background: rgba(0,255,159,0.06); border: 1px solid rgba(0,255,159,0.2); border-radius: 4px; padding: 6px 12px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s ease-in-out infinite; flex-shrink: 0; }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 4px var(--green); transform: scale(1); } 50% { box-shadow: 0 0 12px var(--green), 0 0 24px var(--green-glow); transform: scale(1.2); } }
     .status-text { font-size: 0.6rem; color: var(--green); letter-spacing: 1px; }
-
     .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); }
-
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .stat-box {
-      background: rgba(0,255,159,0.04); border: 1px solid var(--border);
-      border-radius: 4px; padding: 10px 8px; text-align: center; transition: all 0.3s;
-    }
+    .stat-box { background: rgba(0,255,159,0.04); border: 1px solid var(--border); border-radius: 4px; padding: 10px 8px; text-align: center; transition: all 0.3s; }
     .stat-box:hover { background: rgba(0,255,159,0.08); border-color: var(--green-dim); box-shadow: 0 0 10px rgba(0,255,159,0.15); }
-    .stat-num {
-      font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700;
-      color: var(--green); line-height: 1; text-shadow: 0 0 8px var(--green-glow);
-    }
+    .stat-num { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--green); line-height: 1; text-shadow: 0 0 8px var(--green-glow); }
     .stat-label { font-size: 0.55rem; color: #5a9e7a; margin-top: 4px; letter-spacing: 0.5px; }
-
     .skills-section { display: flex; flex-direction: column; gap: 8px; }
     .skill-label-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
     .skill-name { font-size: 0.6rem; color: var(--green-dim); letter-spacing: 0.5px; }
     .skill-pct { font-size: 0.6rem; color: var(--green); }
     .skill-track { height: 4px; background: rgba(0,255,159,0.1); border-radius: 2px; overflow: hidden; }
-    .skill-fill {
-      height: 100%; border-radius: 2px;
-      background: linear-gradient(90deg, var(--green-dim), var(--green));
-      box-shadow: 0 0 6px var(--green-glow);
-      width: 0; transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
-    }
-
+    .skill-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--green-dim), var(--green)); box-shadow: 0 0 6px var(--green-glow); width: 0; transition: width 1.5s cubic-bezier(0.4,0,0.2,1); }
     .contact-item { display: flex; align-items: center; gap: 8px; font-size: 0.62rem; color: #5a9e7a; padding: 4px 0; }
     .contact-item span:first-child { color: var(--green); min-width: 14px; text-align: center; }
     .contact-item a { color: #5a9e7a; text-decoration: none; }
     .contact-item a:hover { color: var(--green); }
-
-    /* RIGHT PANEL */
     #right-panel { display: flex; flex-direction: column; flex: 1; overflow: hidden; position: relative; min-height: 60vh; }
     @media (min-width: 768px) { #right-panel { min-height: unset; } }
-
-    #top-bar {
-      background: rgba(0,10,5,0.8); border-bottom: 1px solid var(--border);
-      padding: 8px 14px; display: flex; align-items: center; justify-content: space-between;
-      flex-shrink: 0; gap: 8px;
-    }
+    #top-bar { background: rgba(0,10,5,0.8); border-bottom: 1px solid var(--border); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 8px; }
     @media (min-width: 768px) { #top-bar { padding: 10px 24px; } }
     .top-bar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .terminal-dots { display: flex; gap: 5px; flex-shrink: 0; }
@@ -224,116 +77,83 @@
     @media (min-width: 768px) { .terminal-title { font-size: 0.7rem; letter-spacing: 2px; } }
     .top-bar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
+    /* ── VOICE BUTTON — fixed for mobile tap ── */
     #voice-btn {
-      background: transparent; border: 1px solid var(--green-dim);
-      color: var(--green); font-family: 'Share Tech Mono', monospace;
-      font-size: 0.6rem; padding: 6px 10px; border-radius: 3px;
-      cursor: pointer; letter-spacing: 1px; transition: all 0.3s;
-      position: relative; overflow: hidden; white-space: nowrap;
-      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-      min-height: 36px; /* easier tap target on mobile */
+      background: transparent;
+      border: 1px solid var(--green-dim);
+      color: var(--green);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      padding: 0 14px;
+      border-radius: 3px;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+      /* Mobile-friendly tap: large target, no delay, no highlight flash */
+      min-height: 44px;
+      min-width: 80px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      /* Prevent iOS from treating it as a non-interactive element */
+      -webkit-appearance: none;
+      appearance: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
-    @media (min-width: 768px) { #voice-btn { font-size: 0.65rem; padding: 6px 14px; cursor: none; } }
-    #voice-btn::before {
-      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(0,255,159,0.15), transparent);
-      transition: left 0.4s;
-    }
+    @media (min-width: 768px) { #voice-btn { font-size: 0.65rem; cursor: none; } }
+    #voice-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0,255,159,0.15), transparent); transition: left 0.4s; }
     #voice-btn:hover { border-color: var(--green); box-shadow: 0 0 15px var(--green-glow); }
     #voice-btn:hover::before { left: 100%; }
-    #voice-btn.active {
-      background: rgba(0,255,159,0.1); border-color: var(--green);
-      box-shadow: 0 0 20px var(--green-glow); animation: voicePulse 1s ease-in-out infinite;
-    }
-    @keyframes voicePulse {
-      0%, 100% { box-shadow: 0 0 10px var(--green-glow); }
-      50% { box-shadow: 0 0 25px var(--green), 0 0 40px var(--green-glow); }
-    }
+    #voice-btn.active { background: rgba(0,255,159,0.1); border-color: var(--green); box-shadow: 0 0 20px var(--green-glow); animation: voicePulse 1s ease-in-out infinite; }
+    @keyframes voicePulse { 0%, 100% { box-shadow: 0 0 10px var(--green-glow); } 50% { box-shadow: 0 0 25px var(--green), 0 0 40px var(--green-glow); } }
 
     #waveform { display: flex; align-items: center; gap: 2px; height: 20px; opacity: 0; transition: opacity 0.3s; }
     #waveform.active { opacity: 1; }
-    .wave-bar {
-      width: 3px; border-radius: 2px; background: var(--green);
-      animation: waveAnim 0.8s ease-in-out infinite; box-shadow: 0 0 4px var(--green-glow);
-    }
-    .wave-bar:nth-child(1){animation-delay:0.0s}.wave-bar:nth-child(2){animation-delay:0.1s}
-    .wave-bar:nth-child(3){animation-delay:0.2s}.wave-bar:nth-child(4){animation-delay:0.3s}
-    .wave-bar:nth-child(5){animation-delay:0.4s}.wave-bar:nth-child(6){animation-delay:0.15s}
-    .wave-bar:nth-child(7){animation-delay:0.25s}
+    .wave-bar { width: 3px; border-radius: 2px; background: var(--green); animation: waveAnim 0.8s ease-in-out infinite; box-shadow: 0 0 4px var(--green-glow); }
+    .wave-bar:nth-child(1){animation-delay:0.0s}.wave-bar:nth-child(2){animation-delay:0.1s}.wave-bar:nth-child(3){animation-delay:0.2s}.wave-bar:nth-child(4){animation-delay:0.3s}.wave-bar:nth-child(5){animation-delay:0.4s}.wave-bar:nth-child(6){animation-delay:0.15s}.wave-bar:nth-child(7){animation-delay:0.25s}
     @keyframes waveAnim { 0%, 100% { height: 4px; } 50% { height: 18px; } }
 
-    #terminal-body {
-      flex: 1; overflow-y: auto; overflow-x: hidden;
-      padding: 16px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
-    }
+    #terminal-body { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
     @media (min-width: 768px) { #terminal-body { padding: 24px 28px; } }
     #terminal-body::-webkit-scrollbar { width: 4px; }
     #terminal-body::-webkit-scrollbar-track { background: transparent; }
     #terminal-body::-webkit-scrollbar-thumb { background: var(--green-dark); border-radius: 2px; }
-
     .prompt-line { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 3px; }
     .prompt-symbol { color: var(--green); font-size: 0.8rem; flex-shrink: 0; line-height: 1.7; text-shadow: 0 0 8px var(--green-glow); }
-
-    #terminal-text {
-      font-size: 0.78rem; line-height: 1.8; color: var(--text);
-      white-space: pre-wrap; word-break: break-word;
-      text-shadow: 0 0 3px rgba(0,255,159,0.2);
-    }
+    #terminal-text { font-size: 0.78rem; line-height: 1.8; color: var(--text); white-space: pre-wrap; word-break: break-word; text-shadow: 0 0 3px rgba(0,255,159,0.2); }
     @media (min-width: 480px) { #terminal-text { font-size: 0.85rem; } }
     @media (min-width: 768px) { #terminal-text { font-size: 0.9rem; } }
     .highlight { color: var(--green); font-weight: bold; text-shadow: 0 0 8px var(--green-glow); }
     .amber { color: var(--amber); text-shadow: 0 0 6px rgba(255,179,0,0.4); }
     .dim { color: #4a7a5a; }
-
-    #cursor-blink {
-      display: inline-block; width: 9px; height: 1em;
-      background: var(--green); box-shadow: 0 0 8px var(--green);
-      animation: blink 1s steps(1) infinite;
-      vertical-align: text-bottom; margin-left: 2px;
-    }
+    #cursor-blink { display: inline-block; width: 9px; height: 1em; background: var(--green); box-shadow: 0 0 8px var(--green); animation: blink 1s steps(1) infinite; vertical-align: text-bottom; margin-left: 2px; }
     @keyframes blink { 50% { opacity: 0; } }
-
-    #bottom-bar {
-      background: rgba(0,10,5,0.9); border-top: 1px solid var(--border);
-      padding: 5px 12px; display: flex; align-items: center; justify-content: space-between;
-      flex-shrink: 0; gap: 8px; flex-wrap: wrap;
-    }
+    #bottom-bar { background: rgba(0,10,5,0.9); border-top: 1px solid var(--border); padding: 5px 12px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 8px; flex-wrap: wrap; }
     @media (min-width: 768px) { #bottom-bar { padding: 6px 24px; flex-wrap: nowrap; } }
     .bottom-info { font-size: 0.55rem; color: #3a6a4a; letter-spacing: 1px; }
     #progress-wrap { display: flex; align-items: center; gap: 8px; }
     #progress-label { font-size: 0.55rem; color: #4a8a5a; white-space: nowrap; }
     #progress-track { width: 100px; height: 3px; background: rgba(0,255,159,0.1); border-radius: 2px; overflow: hidden; }
     @media (min-width: 768px) { #progress-track { width: 160px; } }
-    #progress-fill {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, var(--green-dim), var(--green));
-      box-shadow: 0 0 6px var(--green-glow); transition: width 0.1s linear; border-radius: 2px;
-    }
-
+    #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--green-dim), var(--green)); box-shadow: 0 0 6px var(--green-glow); transition: width 0.1s linear; border-radius: 2px; }
     .glitch { position: relative; animation: glitchOccasional 8s infinite; }
-    @keyframes glitchOccasional {
-      0%, 92%, 100% { text-shadow: 0 0 10px var(--green); }
-      93% { text-shadow: -2px 0 var(--red), 2px 0 #0ff; clip-path: inset(10% 0 80% 0); }
-      94% { text-shadow: 2px 0 var(--red), -2px 0 #0ff; clip-path: inset(60% 0 20% 0); }
-      95% { text-shadow: 0 0 10px var(--green); clip-path: none; }
-    }
+    @keyframes glitchOccasional { 0%, 92%, 100% { text-shadow: 0 0 10px var(--green); } 93% { text-shadow: -2px 0 var(--red), 2px 0 #0ff; clip-path: inset(10% 0 80% 0); } 94% { text-shadow: 2px 0 var(--red), -2px 0 #0ff; clip-path: inset(60% 0 20% 0); } 95% { text-shadow: 0 0 10px var(--green); clip-path: none; } }
     .tag { display: inline-block; color: var(--amber); font-size: 0.75rem; text-shadow: 0 0 8px rgba(255,179,0,0.5); }
     .fade-in { animation: fadeUp 0.8s ease forwards; opacity: 0; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-
-    .section-toggle {
-      display: flex; justify-content: space-between; align-items: center;
-      cursor: pointer; padding: 2px 0; -webkit-tap-highlight-color: transparent;
-    }
+    .section-toggle { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 2px 0; -webkit-tap-highlight-color: transparent; }
     .section-toggle-icon { font-size: 0.7rem; color: var(--green); transition: transform 0.3s; }
     .section-toggle-icon.open { transform: rotate(180deg); }
     .collapsible-content { overflow: hidden; transition: max-height 0.4s ease; }
     .collapsible-content.collapsed { max-height: 0; }
     .collapsible-content.expanded { max-height: 600px; }
-    @media (min-width: 768px) {
-      .section-toggle-icon { display: none; }
-      .collapsible-content { max-height: none !important; overflow: visible !important; }
-    }
+    @media (min-width: 768px) { .section-toggle-icon { display: none; } .collapsible-content { max-height: none !important; overflow: visible !important; } }
   </style>
 </head>
 <body>
@@ -369,23 +189,18 @@
         </div>
       </div>
     </div>
-
     <div class="status-badge fade-in" id="desktop-status" style="animation-delay:0.4s; display:none">
       <div class="status-dot"></div>
       <span class="status-text">// AVAILABLE · BANGALORE, INDIA</span>
     </div>
-
     <div class="divider"></div>
-
     <div class="stats-grid fade-in" style="animation-delay:0.6s">
       <div class="stat-box"><div class="stat-num">13+</div><div class="stat-label">YEARS XP</div></div>
       <div class="stat-box"><div class="stat-num">150+</div><div class="stat-label">TEAMS SERVED</div></div>
       <div class="stat-box"><div class="stat-num">40%</div><div class="stat-label">FASTER TESTS</div></div>
       <div class="stat-box"><div class="stat-num">40%</div><div class="stat-label">AI EFFORT CUT</div></div>
     </div>
-
     <div class="divider"></div>
-
     <div class="skills-section fade-in" style="animation-delay:0.8s">
       <div class="section-toggle" onclick="toggleSection('skills')">
         <div style="font-size:0.6rem; color:#3a6a4a; letter-spacing:2px;">// CORE SKILLS</div>
@@ -396,9 +211,7 @@
         <div id="skill-list"></div>
       </div>
     </div>
-
     <div class="divider"></div>
-
     <div class="fade-in" style="animation-delay:1s">
       <div class="section-toggle" onclick="toggleSection('contact')">
         <div style="font-size:0.6rem; color:#3a6a4a; letter-spacing:2px;">// CONTACT</div>
@@ -408,7 +221,7 @@
         <div style="height:8px"></div>
         <div class="contact-item"><span>▸</span><a href="tel:+919995667550">+91 9995667550</a></div>
         <div class="contact-item"><span>▸</span><a href="tel:+918754175333">+91 8754175333</a></div>
-        <div class="contact-item"><span>▸</span><a href="mailto:sumith.ajith.2392@gmail.com">sumith.ajith.2392@gmail.com</a></div>
+        <div class="contact-item"><span>▸</span><a href="/cdn-cgi/l/email-protection#4033352d2934286e212a2934286e7273797200272d21292c6e232f2d"><span class="__cf_email__" data-cfemail="5724223a3e233f79363d3e233f7965646e6517303a363e3b7934383a">[email&#160;protected]</span></a></div>
       </div>
     </div>
   </div>
@@ -429,7 +242,7 @@
           <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
           <div class="wave-bar"></div>
         </div>
-        <button id="voice-btn" onclick="handleVoiceBtn()">▶ PLAY</button>
+        <button id="voice-btn">▶ PLAY</button>
       </div>
     </div>
 
@@ -459,8 +272,8 @@
   </div>
 </div>
 
-<script>
-// ── LAYOUT ────────────────────────────────────────
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── LAYOUT ──────────────────────────────────────────────────────────────────
 function applyLayout() {
   const isDesktop = window.innerWidth >= 768;
   document.getElementById('desktop-name').style.display = isDesktop ? 'block' : 'none';
@@ -469,7 +282,7 @@ function applyLayout() {
 applyLayout();
 window.addEventListener('resize', applyLayout);
 
-// ── COLLAPSIBLE ───────────────────────────────────
+// ── COLLAPSIBLE ─────────────────────────────────────────────────────────────
 function toggleSection(id) {
   if (window.innerWidth >= 768) return;
   const content = document.getElementById(id + '-content');
@@ -480,29 +293,19 @@ function toggleSection(id) {
   icon.classList.toggle('open', !isExpanded);
 }
 
-// ── CUSTOM CURSOR ─────────────────────────────────
+// ── CUSTOM CURSOR ───────────────────────────────────────────────────────────
 const dot = document.getElementById('cursor-dot');
 const ring = document.getElementById('cursor-ring');
 document.addEventListener('mousemove', e => {
-  dot.style.left = e.clientX + 'px';
-  dot.style.top  = e.clientY + 'px';
-  ring.style.left = e.clientX + 'px';
-  ring.style.top  = e.clientY + 'px';
+  dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
+  ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px';
 });
 document.querySelectorAll('button, .stat-box').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    ring.style.width = '44px'; ring.style.height = '44px';
-    ring.style.borderColor = 'var(--green)';
-    ring.style.boxShadow = '0 0 12px var(--green-glow)';
-  });
-  el.addEventListener('mouseleave', () => {
-    ring.style.width = '28px'; ring.style.height = '28px';
-    ring.style.borderColor = 'var(--green-dim)';
-    ring.style.boxShadow = 'none';
-  });
+  el.addEventListener('mouseenter', () => { ring.style.width='44px'; ring.style.height='44px'; ring.style.borderColor='var(--green)'; ring.style.boxShadow='0 0 12px var(--green-glow)'; });
+  el.addEventListener('mouseleave', () => { ring.style.width='28px'; ring.style.height='28px'; ring.style.borderColor='var(--green-dim)'; ring.style.boxShadow='none'; });
 });
 
-// ── MATRIX ────────────────────────────────────────
+// ── MATRIX ──────────────────────────────────────────────────────────────────
 const canvas = document.getElementById('matrix-canvas');
 const ctx = canvas.getContext('2d');
 function resizeCanvas() { canvas.width = innerWidth; canvas.height = innerHeight; }
@@ -529,7 +332,7 @@ function drawMatrix() {
 }
 drawMatrix();
 
-// ── SKILL BARS ────────────────────────────────────
+// ── SKILL BARS ──────────────────────────────────────────────────────────────
 const skills = [
   { name: 'PLAYWRIGHT / SELENIUM', pct: 98 },
   { name: 'JAVA / PYTHON / TS',    pct: 95 },
@@ -542,11 +345,9 @@ const skillList = document.getElementById('skill-list');
 skills.forEach(s => {
   skillList.innerHTML += `<div style="margin-bottom:10px"><div class="skill-label-row"><span class="skill-name">${s.name}</span><span class="skill-pct">${s.pct}%</span></div><div class="skill-track"><div class="skill-fill" data-pct="${s.pct}"></div></div></div>`;
 });
-setTimeout(() => {
-  document.querySelectorAll('.skill-fill').forEach(el => { el.style.width = el.dataset.pct + '%'; });
-}, 800);
+setTimeout(() => { document.querySelectorAll('.skill-fill').forEach(el => { el.style.width = el.dataset.pct + '%'; }); }, 800);
 
-// ── TYPEWRITER ────────────────────────────────────
+// ── TYPEWRITER ──────────────────────────────────────────────────────────────
 const profileText = `<span class="tag">/** HELLO WORLD **/</span>
 
 Hello there! My name is <span class="highlight">Sumith</span>...
@@ -624,7 +425,20 @@ function updateCursor(show) {
 }
 setTimeout(typeNext, 1200);
 
-// ── VOICE — MOBILE COMPATIBLE ─────────────────────
+// ── VOICE — FULLY MOBILE/iOS COMPATIBLE ─────────────────────────────────────
+//
+// Key fixes vs original:
+//  1. Removed inline onclick="handleVoiceBtn()" — replaced with addEventListener
+//     so the handler is always attached regardless of script parse timing.
+//  2. iOS Safari "silent kick": speak a zero-length utterance first to unlock
+//     the speech engine inside the user-gesture window, THEN queue real speech.
+//  3. speechSynthesis.resume() called after cancel() — iOS often pauses it.
+//  4. Voices fallback: if getVoices() is empty we try once more after a short
+//     delay rather than relying on onvoiceschanged (which is unreliable on iOS).
+//  5. Removed the double-fire bug: the old code had both onvoiceschanged AND a
+//     setTimeout both calling speakNext(), causing it to start twice.
+//  6. Button tap area enlarged to 44px height via CSS (already done above).
+
 const voiceBtn = document.getElementById('voice-btn');
 const waveform = document.getElementById('waveform');
 let speaking = false;
@@ -651,12 +465,12 @@ function getVoice() {
     voices.find(v => v.name === 'Arthur') ||
     voices.find(v => v.name === 'Aaron') ||
     voices.find(v => v.name === 'Alex') ||
-    voices.find(v => v.name === 'Fred') ||
     voices.find(v => v.name === 'Rishi') ||
     voices.find(v => v.name.includes('Male') && v.lang.startsWith('en')) ||
     voices.find(v => v.lang === 'en-GB') ||
     voices.find(v => v.lang === 'en-IN') ||
-    voices.find(v => v.lang.startsWith('en'));
+    voices.find(v => v.lang.startsWith('en')) ||
+    null;
 }
 
 function speakNext() {
@@ -675,49 +489,174 @@ function speakNext() {
     paragraphIndex++;
     setTimeout(speakNext, paragraphIndex === 2 ? 300 : 120);
   };
-  utterance.onerror = () => { paragraphIndex++; speakNext(); };
+  utterance.onerror = (e) => {
+    // Ignore 'interrupted' errors (caused by cancel()); retry others
+    if (e.error !== 'interrupted') { paragraphIndex++; speakNext(); }
+  };
   speechSynthesis.speak(utterance);
 }
 
 function stopSpeech() {
-  speechSynthesis.cancel();
   speaking = false;
   paragraphIndex = 0;
+  speechSynthesis.cancel();
   voiceBtn.textContent = '▶ PLAY';
   voiceBtn.classList.remove('active');
   waveform.classList.remove('active');
 }
 
-// handleVoiceBtn is called via onclick — works on iOS too (requires user gesture)
-function handleVoiceBtn() {
-  if (speaking) {
-    stopSpeech();
-    return;
-  }
-  // Cancel any leftover speech first
+function startSpeech() {
+  // Step 1: cancel any existing speech & resume engine (critical on iOS)
   speechSynthesis.cancel();
+  speechSynthesis.resume();
+
   speaking = true;
   paragraphIndex = 0;
   voiceBtn.textContent = '■ STOP';
   voiceBtn.classList.add('active');
   waveform.classList.add('active');
 
-  // On mobile, voices may not be loaded yet — wait for them
-  if (speechSynthesis.getVoices().length === 0) {
-    speechSynthesis.onvoiceschanged = () => {
-      speechSynthesis.onvoiceschanged = null;
+  // Step 2: iOS "unlock" — speak a silent utterance first, then start real speech.
+  // This must happen synchronously within the user-gesture call stack.
+  const unlock = new SpeechSynthesisUtterance('');
+  unlock.volume = 0;
+  unlock.onend = () => {
+    if (!speaking) return;
+    // Step 3: voices might load asynchronously on first use
+    const trySpeak = () => {
+      speechSynthesis.resume(); // ensure not paused
       speakNext();
     };
-    // Fallback if onvoiceschanged never fires (some browsers)
-    setTimeout(() => { if (speaking && paragraphIndex === 0) speakNext(); }, 500);
-  } else {
-    speakNext();
-  }
+    if (speechSynthesis.getVoices().length > 0) {
+      trySpeak();
+    } else {
+      // Wait for voices — use a one-shot onvoiceschanged, with a single timeout safety net
+      let voicesFired = false;
+      speechSynthesis.onvoiceschanged = () => {
+        if (voicesFired) return;
+        voicesFired = true;
+        speechSynthesis.onvoiceschanged = null;
+        trySpeak();
+      };
+      setTimeout(() => {
+        if (!voicesFired) {
+          voicesFired = true;
+          speechSynthesis.onvoiceschanged = null;
+          trySpeak();
+        }
+      }, 600);
+    }
+  };
+  unlock.onerror = () => {
+    // unlock failed — try anyway
+    if (speaking) speakNext();
+  };
+  speechSynthesis.speak(unlock);
 }
 
-// Preload voices on desktop
-if (speechSynthesis.onvoiceschanged !== undefined) {
-  speechSynthesis.onvoiceschanged = () => {};
+// Manual toggle via PLAY/STOP button
+voiceBtn.addEventListener('click', () => {
+  if (speaking) {
+    stopSpeech();
+  } else {
+    startSpeech();
+  }
+});
+
+// ── AUTOPLAY — works on Desktop Chrome/Firefox/Edge/Safari + Android + iOS ──
+//
+// ALL modern browsers block audio autoplay without a user gesture.
+// This is a hard browser security policy — cannot be bypassed.
+//
+// Solution: Show a full-screen branded overlay immediately on page load.
+// It is the FIRST thing the user sees. One tap/click anywhere = audio starts.
+// This satisfies the user-gesture requirement on every browser/platform.
+//
+// Additional tricks used here:
+//  • touchstart (not touchend) — fires ~300ms faster on Android/iOS
+//  • pointer-events cover the whole screen — no need to hit a small button
+//  • Overlay shown synchronously at DOMContentLoaded, before anything else
+//  • Voices preloaded in background while overlay is visible
+//  • Works: Chrome/Firefox/Edge/Safari desktop, Chrome/Firefox Android, Safari iOS
+
+function showAutoplayOverlay() {
+  if (document.getElementById('autoplay-overlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'autoplay-overlay';
+  overlay.setAttribute('role', 'button');
+  overlay.setAttribute('aria-label', 'Tap to start audio introduction');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(2,10,6,0.96);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none;';
+
+  overlay.innerHTML = `
+    <div style="border:1px solid #00ff9f;border-radius:10px;padding:40px 48px;text-align:center;max-width:340px;width:88%;background:rgba(0,20,12,0.98);box-shadow:0 0 80px rgba(0,255,159,0.2),inset 0 0 40px rgba(0,255,159,0.04);">
+      <div style="width:64px;height:64px;border-radius:50%;border:2px solid #00ff9f;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 30px rgba(0,255,159,0.4);" id="ov-play-btn">
+        <div style="width:0;height:0;border-style:solid;border-width:12px 0 12px 22px;border-color:transparent transparent transparent #00ff9f;margin-left:4px;" id="ov-play-tri"></div>
+      </div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:0.85rem;font-weight:700;color:#00ff9f;letter-spacing:3px;margin-bottom:10px;text-shadow:0 0 12px rgba(0,255,159,0.6);">TAP ANYWHERE</div>
+      <div style="font-size:0.62rem;color:#00cc7a;letter-spacing:1.5px;line-height:1.8;">TO HEAR SUMITH'S<br>AUDIO INTRODUCTION</div>
+      <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:4px;" id="ov-dots">
+        <div style="width:5px;height:5px;border-radius:50%;background:#00ff9f;"></div>
+        <div style="width:5px;height:5px;border-radius:50%;background:#00cc7a;"></div>
+        <div style="width:5px;height:5px;border-radius:50%;background:#004d2a;"></div>
+      </div>
+    </div>
+    <style>
+      #ov-play-btn { animation: ovRing 1.8s ease-in-out infinite; }
+      @keyframes ovRing {
+        0%,100% { box-shadow:0 0 20px rgba(0,255,159,0.3); transform:scale(1); }
+        50% { box-shadow:0 0 50px rgba(0,255,159,0.7),0 0 90px rgba(0,255,159,0.2); transform:scale(1.08); }
+      }
+      #ov-dots div:nth-child(1){animation:ovDot 1.2s ease-in-out 0.0s infinite;}
+      #ov-dots div:nth-child(2){animation:ovDot 1.2s ease-in-out 0.2s infinite;}
+      #ov-dots div:nth-child(3){animation:ovDot 1.2s ease-in-out 0.4s infinite;}
+      @keyframes ovDot{0%,100%{background:#004d2a;transform:scale(1);}50%{background:#00ff9f;transform:scale(1.4);}}
+    </style>
+  `;
+
+  let activated = false;
+  function activate(e) {
+    if (activated) return;
+    activated = true;
+    if (e && e.cancelable) e.preventDefault();
+    hideAutoplayOverlay();
+    // Resume + cancel to reset iOS engine state, then start
+    speechSynthesis.resume();
+    speechSynthesis.cancel();
+    setTimeout(() => { if (!speaking) startSpeech(); }, 80);
+  }
+
+  // Cover ALL input methods across ALL browsers:
+  overlay.addEventListener('touchstart', activate, { passive: false }); // fastest on mobile
+  overlay.addEventListener('click', activate);                           // desktop + fallback
+  document.addEventListener('keydown', (e) => activate(e), { once: true }); // keyboard (desktop)
+
+  document.body.appendChild(overlay);
+}
+
+function hideAutoplayOverlay() {
+  const o = document.getElementById('autoplay-overlay');
+  if (!o) return;
+  o.style.transition = 'opacity 0.35s ease';
+  o.style.opacity = '0';
+  setTimeout(() => { if (o.parentNode) o.parentNode.removeChild(o); }, 380);
+}
+
+// Show overlay immediately — don't wait, don't probe
+// Probing wastes 700-900ms and is unreliable; just show overlay right away.
+// Voices load in the background while the overlay is visible (win-win).
+if (typeof speechSynthesis !== 'undefined') {
+  // Kick voice loading silently in background
+  if (speechSynthesis.getVoices) speechSynthesis.getVoices();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = () => { speechSynthesis.onvoiceschanged = null; };
+  }
+  // Show overlay as soon as DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', showAutoplayOverlay);
+  } else {
+    showAutoplayOverlay();
+  }
 }
 </script>
 </body>
