@@ -157,6 +157,32 @@
   </style>
 </head>
 <body>
+<!-- AUTOPLAY OVERLAY: rendered as static HTML so it shows on ALL browsers/devices instantly -->
+<div id="autoplay-overlay" style="position:fixed;top:0;right:0;bottom:0;left:0;z-index:10000;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;background:rgba(2,10,6,0.96);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;">
+  <div style="border:1px solid #00ff9f;border-radius:10px;padding:40px 36px;text-align:center;max-width:320px;width:82%;background:rgba(0,20,12,0.98);box-shadow:0 0 80px rgba(0,255,159,0.2);">
+    <div id="ov-ring" style="width:68px;height:68px;border-radius:50%;border:2px solid #00ff9f;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 30px rgba(0,255,159,0.4);">
+      <div style="width:0;height:0;border-style:solid;border-width:13px 0 13px 23px;border-color:transparent transparent transparent #00ff9f;margin-left:5px;"></div>
+    </div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:0.85rem;font-weight:700;color:#00ff9f;letter-spacing:3px;margin-bottom:10px;text-shadow:0 0 12px rgba(0,255,159,0.6);">TAP ANYWHERE</div>
+    <div style="font-size:0.62rem;color:#00cc7a;letter-spacing:1.5px;line-height:1.9;">TO HEAR SUMITH'S<br>AUDIO INTRODUCTION</div>
+    <div style="margin-top:18px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;gap:6px;">
+      <div class="ov-dot" style="width:6px;height:6px;border-radius:50%;background:#00ff9f;"></div>
+      <div class="ov-dot" style="width:6px;height:6px;border-radius:50%;background:#00cc7a;animation-delay:0.2s !important;"></div>
+      <div class="ov-dot" style="width:6px;height:6px;border-radius:50%;background:#004d2a;animation-delay:0.4s !important;"></div>
+    </div>
+  </div>
+  <style>
+    #ov-ring { -webkit-animation: ovRing 1.8s ease-in-out infinite; animation: ovRing 1.8s ease-in-out infinite; }
+    @-webkit-keyframes ovRing { 0%,100%{-webkit-transform:scale(1);box-shadow:0 0 20px rgba(0,255,159,0.3);} 50%{-webkit-transform:scale(1.1);box-shadow:0 0 55px rgba(0,255,159,0.7);} }
+    @keyframes ovRing { 0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(0,255,159,0.3);} 50%{transform:scale(1.1);box-shadow:0 0 55px rgba(0,255,159,0.7);} }
+    .ov-dot { -webkit-animation: ovDot 1.2s ease-in-out infinite; animation: ovDot 1.2s ease-in-out infinite; }
+    .ov-dot:nth-child(2) { -webkit-animation-delay:0.2s; animation-delay:0.2s; }
+    .ov-dot:nth-child(3) { -webkit-animation-delay:0.4s; animation-delay:0.4s; }
+    @-webkit-keyframes ovDot { 0%,100%{background:#004d2a;-webkit-transform:scale(1);} 50%{background:#00ff9f;-webkit-transform:scale(1.5);} }
+    @keyframes ovDot { 0%,100%{background:#004d2a;transform:scale(1);} 50%{background:#00ff9f;transform:scale(1.5);} }
+  </style>
+</div>
+
 
 <div id="cursor-dot"></div>
 <div id="cursor-ring"></div>
@@ -579,85 +605,53 @@ voiceBtn.addEventListener('click', () => {
 //  • Voices preloaded in background while overlay is visible
 //  • Works: Chrome/Firefox/Edge/Safari desktop, Chrome/Firefox Android, Safari iOS
 
-function showAutoplayOverlay() {
-  if (document.getElementById('autoplay-overlay')) return;
-
-  const overlay = document.createElement('div');
-  overlay.id = 'autoplay-overlay';
-  overlay.setAttribute('role', 'button');
-  overlay.setAttribute('aria-label', 'Tap to start audio introduction');
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(2,10,6,0.96);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none;';
-
-  overlay.innerHTML = `
-    <div style="border:1px solid #00ff9f;border-radius:10px;padding:40px 48px;text-align:center;max-width:340px;width:88%;background:rgba(0,20,12,0.98);box-shadow:0 0 80px rgba(0,255,159,0.2),inset 0 0 40px rgba(0,255,159,0.04);">
-      <div style="width:64px;height:64px;border-radius:50%;border:2px solid #00ff9f;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 30px rgba(0,255,159,0.4);" id="ov-play-btn">
-        <div style="width:0;height:0;border-style:solid;border-width:12px 0 12px 22px;border-color:transparent transparent transparent #00ff9f;margin-left:4px;" id="ov-play-tri"></div>
-      </div>
-      <div style="font-family:'Orbitron',sans-serif;font-size:0.85rem;font-weight:700;color:#00ff9f;letter-spacing:3px;margin-bottom:10px;text-shadow:0 0 12px rgba(0,255,159,0.6);">TAP ANYWHERE</div>
-      <div style="font-size:0.62rem;color:#00cc7a;letter-spacing:1.5px;line-height:1.8;">TO HEAR SUMITH'S<br>AUDIO INTRODUCTION</div>
-      <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:4px;" id="ov-dots">
-        <div style="width:5px;height:5px;border-radius:50%;background:#00ff9f;"></div>
-        <div style="width:5px;height:5px;border-radius:50%;background:#00cc7a;"></div>
-        <div style="width:5px;height:5px;border-radius:50%;background:#004d2a;"></div>
-      </div>
-    </div>
-    <style>
-      #ov-play-btn { animation: ovRing 1.8s ease-in-out infinite; }
-      @keyframes ovRing {
-        0%,100% { box-shadow:0 0 20px rgba(0,255,159,0.3); transform:scale(1); }
-        50% { box-shadow:0 0 50px rgba(0,255,159,0.7),0 0 90px rgba(0,255,159,0.2); transform:scale(1.08); }
-      }
-      #ov-dots div:nth-child(1){animation:ovDot 1.2s ease-in-out 0.0s infinite;}
-      #ov-dots div:nth-child(2){animation:ovDot 1.2s ease-in-out 0.2s infinite;}
-      #ov-dots div:nth-child(3){animation:ovDot 1.2s ease-in-out 0.4s infinite;}
-      @keyframes ovDot{0%,100%{background:#004d2a;transform:scale(1);}50%{background:#00ff9f;transform:scale(1.4);}}
-    </style>
-  `;
-
-  let activated = false;
-  function activate(e) {
-    if (activated) return;
-    activated = true;
-    if (e && e.cancelable) e.preventDefault();
-    hideAutoplayOverlay();
-    // Resume + cancel to reset iOS engine state, then start
-    speechSynthesis.resume();
-    speechSynthesis.cancel();
-    setTimeout(() => { if (!speaking) startSpeech(); }, 80);
-  }
-
-  // Cover ALL input methods across ALL browsers:
-  overlay.addEventListener('touchstart', activate, { passive: false }); // fastest on mobile
-  overlay.addEventListener('click', activate);                           // desktop + fallback
-  document.addEventListener('keydown', (e) => activate(e), { once: true }); // keyboard (desktop)
-
-  document.body.appendChild(overlay);
-}
-
 function hideAutoplayOverlay() {
-  const o = document.getElementById('autoplay-overlay');
+  var o = document.getElementById('autoplay-overlay');
   if (!o) return;
+  o.style.WebkitTransition = 'opacity 0.35s ease';
   o.style.transition = 'opacity 0.35s ease';
   o.style.opacity = '0';
-  setTimeout(() => { if (o.parentNode) o.parentNode.removeChild(o); }, 380);
+  setTimeout(function() { if (o && o.parentNode) o.parentNode.removeChild(o); }, 380);
 }
 
-// Show overlay immediately — don't wait, don't probe
-// Probing wastes 700-900ms and is unreliable; just show overlay right away.
-// Voices load in the background while the overlay is visible (win-win).
-if (typeof speechSynthesis !== 'undefined') {
-  // Kick voice loading silently in background
-  if (speechSynthesis.getVoices) speechSynthesis.getVoices();
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = () => { speechSynthesis.onvoiceschanged = null; };
+// Wire up the static overlay element to activate speech on first interaction
+(function() {
+  function doWire() {
+    var overlay = document.getElementById('autoplay-overlay');
+    if (!overlay) return;
+    var activated = false;
+    function activate(e) {
+      if (activated) return;
+      activated = true;
+      // Prevent ghost click on mobile (touchstart + click both firing)
+      if (e && typeof e.preventDefault === 'function') e.preventDefault();
+      hideAutoplayOverlay();
+      if (typeof speechSynthesis !== 'undefined') {
+        try { speechSynthesis.resume(); } catch(ex){}
+        try { speechSynthesis.cancel(); } catch(ex){}
+      }
+      setTimeout(function() { if (!speaking) startSpeech(); }, 100);
+    }
+    // touchstart = fastest response on Android & iOS (no 300ms delay)
+    overlay.addEventListener('touchstart', activate, { passive: false });
+    // click = desktop browsers (and iOS fallback)
+    overlay.addEventListener('click', activate);
+    // Any keypress on desktop
+    document.addEventListener('keydown', function(e) { activate(e); }, { once: true });
   }
-  // Show overlay as soon as DOM is ready
+  // Kick voice preloading in the background
+  if (typeof speechSynthesis !== 'undefined') {
+    try { speechSynthesis.getVoices(); } catch(ex){}
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = function() { speechSynthesis.onvoiceschanged = null; };
+    }
+  }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', showAutoplayOverlay);
+    document.addEventListener('DOMContentLoaded', doWire);
   } else {
-    showAutoplayOverlay();
+    doWire();
   }
-}
+})();
 </script>
 </body>
 </html>
