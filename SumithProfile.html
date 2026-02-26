@@ -77,7 +77,6 @@
     @media (min-width: 768px) { .terminal-title { font-size: 0.7rem; letter-spacing: 2px; } }
     .top-bar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-    /* ── VOICE BUTTON — fixed for mobile tap ── */
     #voice-btn {
       background: transparent;
       border: 1px solid var(--green-dim);
@@ -91,7 +90,6 @@
       position: relative;
       overflow: hidden;
       white-space: nowrap;
-      /* Mobile-friendly tap: large target, no delay, no highlight flash */
       min-height: 44px;
       min-width: 80px;
       display: inline-flex;
@@ -100,7 +98,6 @@
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
-      /* Prevent iOS from treating it as a non-interactive element */
       -webkit-appearance: none;
       appearance: none;
       user-select: none;
@@ -154,35 +151,107 @@
     .collapsible-content.collapsed { max-height: 0; }
     .collapsible-content.expanded { max-height: 600px; }
     @media (min-width: 768px) { .section-toggle-icon { display: none; } .collapsible-content { max-height: none !important; overflow: visible !important; } }
+
+    /* ── AUTOPLAY OVERLAY ── */
+    #autoplay-overlay {
+      position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+      z-index: 10000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(2,10,6,0.97);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      -webkit-user-select: none; user-select: none;
+    }
+    #autoplay-card {
+      border: 1px solid #00ff9f; border-radius: 12px;
+      padding: 40px 36px; text-align: center;
+      max-width: 340px; width: 88%;
+      background: rgba(0,20,12,0.98);
+      box-shadow: 0 0 80px rgba(0,255,159,0.2);
+      position: relative;
+    }
+    #ov-ring {
+      width: 72px; height: 72px; border-radius: 50%;
+      border: 2px solid #00ff9f;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 30px rgba(0,255,159,0.4);
+      animation: ovRing 1.8s ease-in-out infinite;
+      position: relative;
+    }
+    @keyframes ovRing { 0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(0,255,159,0.3);} 50%{transform:scale(1.1);box-shadow:0 0 55px rgba(0,255,159,0.7);} }
+    #ov-play-icon { width:0; height:0; border-style:solid; border-width:14px 0 14px 24px; border-color:transparent transparent transparent #00ff9f; margin-left:6px; }
+    #ov-title { font-family:'Orbitron',sans-serif; font-size:0.88rem; font-weight:700; color:#00ff9f; letter-spacing:3px; margin-bottom:10px; text-shadow:0 0 12px rgba(0,255,159,0.6); }
+    #ov-sub { font-size:0.62rem; color:#00cc7a; letter-spacing:1.5px; line-height:2; }
+    .ov-dots { margin-top:18px; display:flex; align-items:center; justify-content:center; gap:6px; }
+    .ov-dot { width:6px; height:6px; border-radius:50%; background:#004d2a; animation: ovDot 1.2s ease-in-out infinite; }
+    .ov-dot:nth-child(1){animation-delay:0s} .ov-dot:nth-child(2){animation-delay:0.2s} .ov-dot:nth-child(3){animation-delay:0.4s}
+    @keyframes ovDot { 0%,100%{background:#004d2a;transform:scale(1);} 50%{background:#00ff9f;transform:scale(1.5);} }
+
+    /* Countdown ring */
+    #ov-countdown-wrap {
+      position: absolute; top: -14px; right: -14px;
+      width: 48px; height: 48px;
+    }
+    #ov-countdown-svg { width: 48px; height: 48px; transform: rotate(-90deg); }
+    #ov-countdown-circle {
+      fill: none;
+      stroke: var(--amber);
+      stroke-width: 3;
+      stroke-dasharray: 125.6;
+      stroke-dashoffset: 0;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear;
+    }
+    #ov-countdown-num {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--amber);
+      text-shadow: 0 0 8px rgba(255,179,0,0.6);
+      line-height: 1;
+    }
+    #ov-skip-note {
+      margin-top: 16px;
+      font-size: 0.55rem; color: #3a6a4a; letter-spacing: 1.5px;
+    }
+    #ov-auto-label {
+      font-size: 0.58rem; color: var(--amber); letter-spacing: 1px;
+      margin-top: 6px;
+      text-shadow: 0 0 6px rgba(255,179,0,0.4);
+    }
   </style>
 </head>
 <body>
-<!-- AUTOPLAY OVERLAY: rendered as static HTML so it shows on ALL browsers/devices instantly -->
-<div id="autoplay-overlay" style="position:fixed;top:0;right:0;bottom:0;left:0;z-index:10000;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;background:rgba(2,10,6,0.96);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;">
-  <div style="border:1px solid #00ff9f;border-radius:10px;padding:40px 36px;text-align:center;max-width:320px;width:82%;background:rgba(0,20,12,0.98);box-shadow:0 0 80px rgba(0,255,159,0.2);">
-    <div id="ov-ring" style="width:68px;height:68px;border-radius:50%;border:2px solid #00ff9f;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 30px rgba(0,255,159,0.4);">
-      <div style="width:0;height:0;border-style:solid;border-width:13px 0 13px 23px;border-color:transparent transparent transparent #00ff9f;margin-left:5px;"></div>
-    </div>
-    <div style="font-family:'Orbitron',sans-serif;font-size:0.85rem;font-weight:700;color:#00ff9f;letter-spacing:3px;margin-bottom:10px;text-shadow:0 0 12px rgba(0,255,159,0.6);">TAP ANYWHERE</div>
-    <div style="font-size:0.62rem;color:#00cc7a;letter-spacing:1.5px;line-height:1.9;">TO HEAR SUMITH'S<br>AUDIO INTRODUCTION</div>
-    <div style="margin-top:18px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;gap:6px;">
-      <div class="ov-dot" style="width:6px;height:6px;border-radius:50%;background:#00ff9f;"></div>
-      <div class="ov-dot" style="width:6px;height:6px;border-radius:50%;background:#00cc7a;animation-delay:0.2s !important;"></div>
-      <div class="ov-dot" style="width:6px;height:6px;border-radius:50%;background:#004d2a;animation-delay:0.4s !important;"></div>
-    </div>
-  </div>
-  <style>
-    #ov-ring { -webkit-animation: ovRing 1.8s ease-in-out infinite; animation: ovRing 1.8s ease-in-out infinite; }
-    @-webkit-keyframes ovRing { 0%,100%{-webkit-transform:scale(1);box-shadow:0 0 20px rgba(0,255,159,0.3);} 50%{-webkit-transform:scale(1.1);box-shadow:0 0 55px rgba(0,255,159,0.7);} }
-    @keyframes ovRing { 0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(0,255,159,0.3);} 50%{transform:scale(1.1);box-shadow:0 0 55px rgba(0,255,159,0.7);} }
-    .ov-dot { -webkit-animation: ovDot 1.2s ease-in-out infinite; animation: ovDot 1.2s ease-in-out infinite; }
-    .ov-dot:nth-child(2) { -webkit-animation-delay:0.2s; animation-delay:0.2s; }
-    .ov-dot:nth-child(3) { -webkit-animation-delay:0.4s; animation-delay:0.4s; }
-    @-webkit-keyframes ovDot { 0%,100%{background:#004d2a;-webkit-transform:scale(1);} 50%{background:#00ff9f;-webkit-transform:scale(1.5);} }
-    @keyframes ovDot { 0%,100%{background:#004d2a;transform:scale(1);} 50%{background:#00ff9f;transform:scale(1.5);} }
-  </style>
-</div>
 
+<!-- AUTOPLAY OVERLAY -->
+<div id="autoplay-overlay">
+  <div id="autoplay-card">
+    <!-- Countdown badge -->
+    <div id="ov-countdown-wrap">
+      <svg id="ov-countdown-svg" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,179,0,0.15)" stroke-width="3"/>
+        <circle id="ov-countdown-circle" cx="24" cy="24" r="20"/>
+      </svg>
+      <div id="ov-countdown-num">15</div>
+    </div>
+
+    <div id="ov-ring">
+      <div id="ov-play-icon"></div>
+    </div>
+    <div id="ov-title">TAP ANYWHERE</div>
+    <div id="ov-sub">TO HEAR SUMITH'S<br>AUDIO INTRODUCTION</div>
+    <div class="ov-dots">
+      <div class="ov-dot"></div>
+      <div class="ov-dot"></div>
+      <div class="ov-dot"></div>
+    </div>
+    <div id="ov-auto-label">AUTO-PLAYING IN <span id="ov-sec">15</span>s</div>
+    <div id="ov-skip-note">— OR TAP/CLICK ANYWHERE TO START NOW —</div>
+  </div>
+</div>
 
 <div id="cursor-dot"></div>
 <div id="cursor-ring"></div>
@@ -247,7 +316,7 @@
         <div style="height:8px"></div>
         <div class="contact-item"><span>▸</span><a href="tel:+919995667550">+91 9995667550</a></div>
         <div class="contact-item"><span>▸</span><a href="tel:+918754175333">+91 8754175333</a></div>
-        <div class="contact-item"><span>▸</span><a href="/cdn-cgi/l/email-protection#4033352d2934286e212a2934286e7273797200272d21292c6e232f2d"><span class="__cf_email__" data-cfemail="5724223a3e233f79363d3e233f7965646e6517303a363e3b7934383a">[email&#160;protected]</span></a></div>
+        <div class="contact-item"><span>▸</span><a href="mailto:sumith.ajith.2392@gmail.com">sumith.ajith.2392@gmail.com</a></div>
       </div>
     </div>
   </div>
@@ -298,7 +367,7 @@
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ── LAYOUT ──────────────────────────────────────────────────────────────────
 function applyLayout() {
   const isDesktop = window.innerWidth >= 768;
@@ -451,20 +520,7 @@ function updateCursor(show) {
 }
 setTimeout(typeNext, 1200);
 
-// ── VOICE — FULLY MOBILE/iOS COMPATIBLE ─────────────────────────────────────
-//
-// Key fixes vs original:
-//  1. Removed inline onclick="handleVoiceBtn()" — replaced with addEventListener
-//     so the handler is always attached regardless of script parse timing.
-//  2. iOS Safari "silent kick": speak a zero-length utterance first to unlock
-//     the speech engine inside the user-gesture window, THEN queue real speech.
-//  3. speechSynthesis.resume() called after cancel() — iOS often pauses it.
-//  4. Voices fallback: if getVoices() is empty we try once more after a short
-//     delay rather than relying on onvoiceschanged (which is unreliable on iOS).
-//  5. Removed the double-fire bug: the old code had both onvoiceschanged AND a
-//     setTimeout both calling speakNext(), causing it to start twice.
-//  6. Button tap area enlarged to 44px height via CSS (already done above).
-
+// ── VOICE ────────────────────────────────────────────────────────────────────
 const voiceBtn = document.getElementById('voice-btn');
 const waveform = document.getElementById('waveform');
 let speaking = false;
@@ -516,7 +572,6 @@ function speakNext() {
     setTimeout(speakNext, paragraphIndex === 2 ? 300 : 120);
   };
   utterance.onerror = (e) => {
-    // Ignore 'interrupted' errors (caused by cancel()); retry others
     if (e.error !== 'interrupted') { paragraphIndex++; speakNext(); }
   };
   speechSynthesis.speak(utterance);
@@ -532,7 +587,6 @@ function stopSpeech() {
 }
 
 function startSpeech() {
-  // Step 1: cancel any existing speech & resume engine (critical on iOS)
   speechSynthesis.cancel();
   speechSynthesis.resume();
 
@@ -542,21 +596,17 @@ function startSpeech() {
   voiceBtn.classList.add('active');
   waveform.classList.add('active');
 
-  // Step 2: iOS "unlock" — speak a silent utterance first, then start real speech.
-  // This must happen synchronously within the user-gesture call stack.
   const unlock = new SpeechSynthesisUtterance('');
   unlock.volume = 0;
   unlock.onend = () => {
     if (!speaking) return;
-    // Step 3: voices might load asynchronously on first use
     const trySpeak = () => {
-      speechSynthesis.resume(); // ensure not paused
+      speechSynthesis.resume();
       speakNext();
     };
     if (speechSynthesis.getVoices().length > 0) {
       trySpeak();
     } else {
-      // Wait for voices — use a one-shot onvoiceschanged, with a single timeout safety net
       let voicesFired = false;
       speechSynthesis.onvoiceschanged = () => {
         if (voicesFired) return;
@@ -573,83 +623,79 @@ function startSpeech() {
       }, 600);
     }
   };
-  unlock.onerror = () => {
-    // unlock failed — try anyway
-    if (speaking) speakNext();
-  };
+  unlock.onerror = () => { if (speaking) speakNext(); };
   speechSynthesis.speak(unlock);
 }
 
-// Manual toggle via PLAY/STOP button
 voiceBtn.addEventListener('click', () => {
-  if (speaking) {
-    stopSpeech();
-  } else {
-    startSpeech();
-  }
+  if (speaking) stopSpeech();
+  else startSpeech();
 });
 
-// ── AUTOPLAY — works on Desktop Chrome/Firefox/Edge/Safari + Android + iOS ──
-//
-// ALL modern browsers block audio autoplay without a user gesture.
-// This is a hard browser security policy — cannot be bypassed.
-//
-// Solution: Show a full-screen branded overlay immediately on page load.
-// It is the FIRST thing the user sees. One tap/click anywhere = audio starts.
-// This satisfies the user-gesture requirement on every browser/platform.
-//
-// Additional tricks used here:
-//  • touchstart (not touchend) — fires ~300ms faster on Android/iOS
-//  • pointer-events cover the whole screen — no need to hit a small button
-//  • Overlay shown synchronously at DOMContentLoaded, before anything else
-//  • Voices preloaded in background while overlay is visible
-//  • Works: Chrome/Firefox/Edge/Safari desktop, Chrome/Firefox Android, Safari iOS
-
-function hideAutoplayOverlay() {
-  var o = document.getElementById('autoplay-overlay');
-  if (!o) return;
-  o.style.WebkitTransition = 'opacity 0.35s ease';
-  o.style.transition = 'opacity 0.35s ease';
-  o.style.opacity = '0';
-  setTimeout(function() { if (o && o.parentNode) o.parentNode.removeChild(o); }, 380);
-}
-
-// Wire up the static overlay element to activate speech on first interaction
+// ── AUTOPLAY OVERLAY WITH COUNTDOWN ─────────────────────────────────────────
 (function() {
-  function doWire() {
-    var overlay = document.getElementById('autoplay-overlay');
-    if (!overlay) return;
-    var activated = false;
-    function activate(e) {
-      if (activated) return;
-      activated = true;
-      // Prevent ghost click on mobile (touchstart + click both firing)
-      if (e && typeof e.preventDefault === 'function') e.preventDefault();
-      hideAutoplayOverlay();
-      if (typeof speechSynthesis !== 'undefined') {
-        try { speechSynthesis.resume(); } catch(ex){}
-        try { speechSynthesis.cancel(); } catch(ex){}
-      }
-      setTimeout(function() { if (!speaking) startSpeech(); }, 100);
+  var COUNTDOWN = 15; // seconds
+  var overlay = document.getElementById('autoplay-overlay');
+  var secLabel = document.getElementById('ov-sec');
+  var circle = document.getElementById('ov-countdown-circle');
+  var numEl = document.getElementById('ov-countdown-num');
+  var activated = false;
+  var countdownInterval = null;
+  var remaining = COUNTDOWN;
+
+  // SVG circle: circumference = 2 * π * r = 2 * π * 20 ≈ 125.66
+  var CIRC = 2 * Math.PI * 20; // 125.66
+  circle.style.strokeDasharray = CIRC;
+  circle.style.strokeDashoffset = '0';
+
+  function updateCountdown() {
+    remaining--;
+    var frac = remaining / COUNTDOWN;
+    // offset: 0 = full circle, CIRC = empty
+    circle.style.strokeDashoffset = ((1 - frac) * CIRC).toFixed(2);
+    if (secLabel) secLabel.textContent = remaining;
+    if (numEl) numEl.textContent = remaining;
+
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      if (!activated) activate(null);
     }
-    // touchstart = fastest response on Android & iOS (no 300ms delay)
-    overlay.addEventListener('touchstart', activate, { passive: false });
-    // click = desktop browsers (and iOS fallback)
-    overlay.addEventListener('click', activate);
-    // Any keypress on desktop
-    document.addEventListener('keydown', function(e) { activate(e); }, { once: true });
   }
-  // Kick voice preloading in the background
+
+  // Start countdown 500ms after page load
+  setTimeout(function() {
+    countdownInterval = setInterval(updateCountdown, 1000);
+  }, 500);
+
+  function hideOverlay() {
+    if (!overlay) return;
+    overlay.style.transition = 'opacity 0.35s ease';
+    overlay.style.opacity = '0';
+    setTimeout(function() { if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 380);
+  }
+
+  function activate(e) {
+    if (activated) return;
+    activated = true;
+    if (countdownInterval) clearInterval(countdownInterval);
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    hideOverlay();
+    if (typeof speechSynthesis !== 'undefined') {
+      try { speechSynthesis.resume(); } catch(ex){}
+      try { speechSynthesis.cancel(); } catch(ex){}
+    }
+    setTimeout(function() { if (!speaking) startSpeech(); }, 100);
+  }
+
+  if (overlay) {
+    overlay.addEventListener('touchstart', activate, { passive: false });
+    overlay.addEventListener('click', activate);
+  }
+  document.addEventListener('keydown', function(e) { activate(e); }, { once: true });
+
+  // Preload voices in background
   if (typeof speechSynthesis !== 'undefined') {
     try { speechSynthesis.getVoices(); } catch(ex){}
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = function() { speechSynthesis.onvoiceschanged = null; };
-    }
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', doWire);
-  } else {
-    doWire();
   }
 })();
 </script>
