@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Sumith PA — Cover Letter 🇦🇺</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#00563B;       /* Australian green */
+  --gold:#FFCD00;       /* Australian gold */
+  --cream:#f0fff4;
+  --bubble:#fffde7;
+  --shadow:#005500;
+  --tag-bg:#e6f9ee;
+}
+body{background:var(--cream);font-family:'Nunito',sans-serif;font-size:15px;color:#1a2e1a}
+
+/* ===== progress ===== */
+.progress-bar{height:5px;background:#ddd}
+.progress-fill{height:100%;background:var(--gold);width:0%;transition:width .4s}
+
+/* ===== header ===== */
+.header{background:var(--navy);padding:20px 28px;display:flex;align-items:center;gap:18px;position:relative;overflow:hidden}
+.header::after{content:'';position:absolute;top:-30px;right:-30px;width:150px;height:150px;background:var(--gold);border-radius:50%;opacity:.15;pointer-events:none}
+/* Aussie flag strip */
+.header::before{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#00008B 33%,#fff 33% 66%,#CC0000 66%)}
+.header-info .title{color:#fff;font-family:'Bangers',cursive;font-size:30px;letter-spacing:2px}
+.header-info .sub{color:var(--gold);font-size:13px;font-weight:700;margin-top:3px}
+.header-info .stars{color:var(--gold);font-size:18px;letter-spacing:4px;margin-top:3px}
+
+/* play button */
+.play-btn{
+  margin-left:auto;background:var(--gold);color:var(--navy);
+  border:3px solid #fff;border-radius:50px;padding:12px 26px;
+  font-family:'Bangers',cursive;font-size:20px;letter-spacing:1px;cursor:pointer;
+  white-space:nowrap;transition:transform .12s,box-shadow .12s;
+  box-shadow:4px 4px 0 var(--shadow);flex-shrink:0
+}
+.play-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--shadow)}
+.play-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}
+.play-btn.stop-mode{background:#e74c3c;border-color:#fff;color:#fff;box-shadow:4px 4px 0 #8b0000}
+.play-btn.stop-mode:hover{box-shadow:6px 6px 0 #8b0000}
+
+/* ===== layout ===== */
+.scene{display:grid;grid-template-columns:200px 1fr;gap:0;padding:22px 20px 10px;align-items:start}
+.character-col{display:flex;flex-direction:column;align-items:center;gap:10px;position:sticky;top:10px}
+.speech-col{display:flex;flex-direction:column;gap:16px;padding-top:6px}
+
+/* ===== cards ===== */
+.section-card,.speech-bubble{
+  background:#fff;border:3px solid var(--navy);border-radius:16px;
+  padding:16px 18px;box-shadow:5px 5px 0 var(--navy);
+  transition:background .3s,border-color .3s,box-shadow .3s
+}
+.section-card h3{font-family:'Bangers',cursive;font-size:22px;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.section-card p{line-height:1.6;color:#333}
+
+/* speech bubble with tail */
+.speech-bubble{background:var(--bubble);position:relative}
+.speech-bubble::before{content:'';position:absolute;left:-24px;top:20px;border:12px solid transparent;border-right-color:var(--navy)}
+.speech-bubble::after{content:'';position:absolute;left:-17px;top:23px;border:9px solid transparent;border-right-color:var(--bubble)}
+.bubble-emoji{font-size:22px;margin-right:6px}
+.speech-bubble p{line-height:1.7;color:#333}
+
+/* highlight state */
+.highlight{background:var(--bubble)!important;border-color:var(--gold)!important;box-shadow:5px 5px 0 var(--gold)!important}
+.highlight h3{color:var(--navy)!important}
+
+/* tag cloud */
+.stat-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.stat-badge,.tag{background:var(--tag-bg);border:2px solid var(--navy);border-radius:9px;padding:5px 12px;font-size:13px;font-weight:700;color:var(--navy)}
+.stat-badge span{color:#c47a00}
+
+/* ===== character ===== */
+.char-label{background:var(--gold);color:var(--navy);padding:4px 14px;border:3px solid var(--navy);border-radius:10px;font-family:'Bangers',cursive;font-size:17px;box-shadow:3px 3px 0 var(--navy)}
+
+/* ===== reading indicator ===== */
+.reading-indicator{display:flex;align-items:center;gap:7px;background:var(--tag-bg);border:2px solid var(--navy);border-radius:24px;padding:7px 14px;font-size:13px;color:var(--navy);width:fit-content;opacity:0;transition:opacity .3s;margin-top:4px}
+.reading-indicator.active{opacity:1}
+.dot-anim span{display:inline-block;animation:dotbounce .6s infinite alternate}
+.dot-anim span:nth-child(2){animation-delay:.2s}
+.dot-anim span:nth-child(3){animation-delay:.4s}
+@keyframes dotbounce{from{transform:translateY(0)}to{transform:translateY(-5px)}}
+
+/* ===== animations ===== */
+.bounce{animation:bounce 2.4s infinite ease-in-out}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.wiggle{animation:wiggle .5s ease-in-out}
+@keyframes wiggle{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+
+/* ===== auto-timer badge ===== */
+.auto-timer{position:fixed;top:16px;right:16px;background:var(--navy);color:var(--gold);padding:8px 14px;border-radius:10px;font-family:'Bangers',cursive;font-size:15px;box-shadow:2px 2px 0 var(--shadow);z-index:200;display:none}
+
+/* ===== progress tracker ===== */
+.progress-tracker{background:#fff;border:2px solid #c8e6c9;border-radius:12px;padding:10px 16px;margin-bottom:4px}
+.progress-tracker h4{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.step-dots{display:flex;gap:6px;flex-wrap:wrap}
+.step-dot{width:24px;height:24px;border-radius:50%;background:#e0e0e0;border:2px solid #ccc;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-weight:700}
+.step-dot.done{background:#c8e6c9;border-color:var(--navy);color:var(--navy)}
+.step-dot.active{background:var(--gold);border-color:var(--navy);color:var(--navy)}
+
+/* ===== footer ===== */
+.footer-bar{background:var(--navy);color:var(--gold);padding:14px 24px;margin-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-family:'Bangers',cursive;font-size:14px}
+
+/* ===== responsive ===== */
+@media(max-width:620px){
+  .scene{grid-template-columns:1fr}
+  .character-col{position:relative;flex-direction:row;justify-content:flex-start;padding:0 8px}
+  .header{flex-wrap:wrap}
+  .play-btn{margin-left:0;width:100%;text-align:center}
+  .auto-timer{top:8px;right:8px;font-size:13px}
+  .speech-bubble::before,.speech-bubble::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+<div class="auto-timer" id="autoTimer">Auto-read in <span id="countdown">10</span>s ⏳</div>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div style="width:62px;height:62px;border-radius:50%;background:#fff;border:3px solid var(--gold);display:flex;justify-content:center;align-items:center;flex-shrink:0">
+    <svg width="54" height="54" viewBox="0 0 180 250">
+      <rect x="55" y="120" width="70" height="90" rx="12" fill="#4a8f5b"/>
+      <circle cx="90" cy="70" r="30" fill="#f5c5a3"/>
+      <path d="M60 55 Q90 20 120 55" fill="#2a1a1a"/>
+      <circle cx="78" cy="70" r="8" fill="none" stroke="#222" stroke-width="2"/>
+      <circle cx="102" cy="70" r="8" fill="none" stroke="#222" stroke-width="2"/>
+      <line x1="86" y1="70" x2="94" y2="70" stroke="#222" stroke-width="2"/>
+      <circle cx="78" cy="70" r="3" fill="#000"/>
+      <circle cx="102" cy="70" r="3" fill="#000"/>
+      <path d="M78 85 Q90 95 102 85" stroke="#c0765a" stroke-width="3" fill="none"/>
+      <rect x="65" y="190" width="50" height="30" fill="#2e7d45"/>
+      <rect x="70" y="195" width="40" height="20" fill="#fff"/>
+      <line x1="55" y1="150" x2="70" y2="195" stroke="#4a8f5b" stroke-width="8"/>
+      <line x1="125" y1="150" x2="110" y2="195" stroke="#4a8f5b" stroke-width="8"/>
+    </svg>
+  </div>
+  <div class="header-info">
+    <div class="title">SUMITH PA — COVER LETTER 🇦🇺</div>
+    <div class="sub">Lead QA Automation Architect &nbsp;•&nbsp; 13+ Years &nbsp;•&nbsp; AI-Driven Testing</div>
+    <div class="stars">★★★★★</div>
+  </div>
+  <button class="play-btn" id="playBtn">▶ READ IT TO ME</button>
+</div>
+
+<!-- ===== SCENE ===== -->
+<div class="scene">
+
+  <!-- LEFT: character -->
+  <div class="character-col">
+    <div id="charWrapper" class="bounce" style="width:120px;height:120px;background:#fff;border:3px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:4px 4px 0 var(--navy)">
+      <svg width="90" height="90" viewBox="0 0 180 250">
+        <rect x="55" y="120" width="70" height="90" rx="12" fill="#4a8f5b"/>
+        <circle cx="90" cy="70" r="30" fill="#f5c5a3"/>
+        <path d="M60 55 Q90 20 120 55" fill="#2a1a1a"/>
+        <circle cx="78" cy="70" r="8" fill="none" stroke="#222" stroke-width="2"/>
+        <circle cx="102" cy="70" r="8" fill="none" stroke="#222" stroke-width="2"/>
+        <line x1="86" y1="70" x2="94" y2="70" stroke="#222" stroke-width="2"/>
+        <circle cx="78" cy="70" r="3" fill="#000"/>
+        <circle cx="102" cy="70" r="3" fill="#000"/>
+        <path d="M78 85 Q90 95 102 85" stroke="#c0765a" stroke-width="3" fill="none"/>
+        <rect x="65" y="190" width="50" height="30" fill="#2e7d45"/>
+        <rect x="70" y="195" width="40" height="20" fill="#fff"/>
+        <line x1="55" y1="150" x2="70" y2="195" stroke="#4a8f5b" stroke-width="8"/>
+        <line x1="125" y1="150" x2="110" y2="195" stroke="#4a8f5b" stroke-width="8"/>
+      </svg>
+    </div>
+    <div class="char-label">Sumith PA 🎯</div>
+    <div class="reading-indicator" id="readingInd">
+      <span>Talking</span>
+      <span class="dot-anim"><span>.</span><span>.</span><span>.</span></span>
+    </div>
+    <div class="progress-tracker" style="width:100%;margin-top:10px">
+      <h4>Progress</h4>
+      <div class="step-dots" id="stepDots"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: content -->
+  <div class="speech-col" id="speechCol">
+
+    <!-- INTRO -->
+    <div class="speech-bubble" id="bubble0">
+      <p><span class="bubble-emoji">👋</span> G'day! Okay I'm not actually Australian yet — but I'm working on it! 😄 I'm <strong>Sumith</strong>, and instead of a boring "To Whom It May Concern" opener, I thought I'd just… talk to you like a real person. Grab a flat white, let's go!</p>
+    </div>
+
+    <div class="section-card" id="card0">
+      <h3>😎 So, Who Am I?</h3>
+      <p>I'm a <strong>Lead QA Automation Architect</strong> who's been genuinely obsessed with automation for <strong>13+ years</strong>. I take those slow, clunky "let's-test-it-manually-on-Friday-afternoon" QA teams and turn them into fast, confident, automated-release machines. And here's the thing — I've already done it right here in Australia:</p>
+      <div class="stat-row" style="margin-top:12px">
+        <div class="stat-badge">🏦 Commonwealth Bank of Australia</div>
+        <div class="stat-badge">📡 Telstra</div>
+        <div class="stat-badge">🏦 Standard Chartered Bank</div>
+        <div class="stat-badge">💰 Wells Fargo</div>
+      </div>
+      <p style="margin-top:10px;font-size:13px;color:#555">Yep — <strong>CBA and Telstra</strong>. Two of the biggest names in Australia. I know how Australian enterprise teams work, I've shipped in that environment, and I genuinely loved every bit of it! 🇦🇺</p>
+    </div>
+
+    <div class="speech-bubble" id="bubble1">
+      <p><span class="bubble-emoji">🚀</span> Alright, this one's my all-time favourite flex — a <strong>Playwright + Cucumber BDD framework</strong> I built from scratch ended up being used by <strong>150+ teams at Telstra</strong>. That's not a typo. 150! No cake, no shout-out in the all-hands — just the quiet satisfaction of watching something you built go absolutely massive 😂🎂</p>
+    </div>
+
+    <div class="section-card" id="card1">
+      <h3>📊 Numbers That Speak for Themselves</h3>
+      <p>I love a good metric — and these are 100% real:</p>
+      <div class="stat-row">
+        <div class="stat-badge">🔻 <span>45%</span> faster regression cycles</div>
+        <div class="stat-badge">✂️ <span>40%</span> less manual testing grind</div>
+        <div class="stat-badge">📈 <span>30%</span> team efficiency uplift</div>
+        <div class="stat-badge">👥 Led a crew of <span>10+</span> engineers</div>
+        <div class="stat-badge">🤖 AI auto-writes test cases now!</div>
+        <div class="stat-badge">☁️ Full AWS serverless CI/CD pipelines</div>
+      </div>
+    </div>
+
+    <div class="speech-bubble" id="bubble2">
+      <p><span class="bubble-emoji">🤖</span> And this is the thing I'm most proud of — I built an <strong>AI agent that reads Jira tickets and generates test cases automatically</strong>. The whole team cheered when it went live 🥳 Nobody's written a test case by hand since. That's the kind of "automate the boring stuff, free up time for the good stuff" energy I bring to every team!</p>
+    </div>
+
+    <!-- AUSTRALIA CARD -->
+    <div class="section-card" id="card2">
+      <h3>🇦🇺 Why Australia? This Is Already Home!</h3>
+      <p>
+        Honestly — Australia isn't just a destination for me, it's where I've already done my best work. I understand the culture, the enterprise landscape, and what Australian tech teams actually value: <em>no-nonsense delivery, collaborative energy, and tools that actually work in production</em>.
+      </p>
+      <p style="margin-top:10px">
+        Here's what I bring to an Australian organisation right now:
+      </p>
+      <p style="margin-top:8px">
+        🏗️ <strong>Frameworks built to scale</strong> — 150 Telstra teams didn't happen by accident<br>
+        💸 <strong>Measurable ROI on automation</strong> — I track it, I report it, the C-suite loves it<br>
+        🚀 <strong>Faster, safer releases</strong> — CI/CD pipelines that make Friday deploys feel fine<br>
+        🧠 <strong>AI-augmented quality</strong> — I build the AI tools, not just use them<br>
+        🤝 <strong>Team culture that sticks</strong> — engineers who actually enjoy testing? I've built that
+      </p>
+      <div class="stat-row" style="margin-top:12px">
+        <div class="stat-badge">🇦🇺 Australian enterprise experience</div>
+        <div class="stat-badge">🧠 AI-augmented QA</div>
+        <div class="stat-badge">⚙️ Framework architecture</div>
+        <div class="stat-badge">📊 C-suite reporting</div>
+        <div class="stat-badge">🔗 DevOps native</div>
+        <div class="stat-badge">🌏 Visa-ready (189/190/482)</div>
+      </div>
+    </div>
+
+    <div class="speech-bubble" id="bubble3">
+      <p><span class="bubble-emoji">✈️</span>
+        <strong>Visa sponsorship?</strong> Absolutely open to 482, 189, or 190 — I've already started my PR journey and I'm serious about making Australia my permanent home 🏡<br><br>
+        <strong>Notice period?</strong> Flexible and quick to move 😄 <strong>English?</strong> You just read my whole cover letter — I think we're good!<br><br>
+        <strong>Favourite Australian thing so far?</strong> The coffee culture is genuinely unmatched ☕ As a food photographer, I've had more camera-worthy flat whites than I can count. My DSLR has strong opinions about latte art. But I promise — the automation work always gets priority over the coffee photography! 📸
+      </p>
+    </div>
+
+    <div class="section-card" id="card3">
+      <h3>🛠️ The Full Toolkit — It's a Big One!</h3>
+      <p style="margin-bottom:10px">Plug me in from day one — here's what I work with:</p>
+      <div class="stat-row">
+        <div class="tag">Selenium</div><div class="tag">Playwright</div><div class="tag">Appium</div>
+        <div class="tag">Java</div><div class="tag">Python</div><div class="tag">TypeScript</div>
+        <div class="tag">Cucumber BDD</div><div class="tag">REST Assured</div><div class="tag">Karate</div>
+        <div class="tag">AWS Lambda</div><div class="tag">Docker</div><div class="tag">Kubernetes</div>
+        <div class="tag">Azure DevOps</div><div class="tag">GitHub Actions</div>
+        <div class="tag">Groq AI</div><div class="tag">LLM Test Agents</div>
+        <div class="tag">Jira Zephyr</div><div class="tag">Splunk</div>
+      </div>
+    </div>
+
+    <div class="speech-bubble" id="bubble4">
+      <p><span class="bubble-emoji">🎯</span> If you bring me on board, I'm genuinely committed to making your releases faster, your bugs rarer, your dashboards something the CTO actually shows off, and your engineers proud of the quality they ship. I'd love to have a chat — even a quick 15-minute intro call would be fantastic. Let's build something great together! 🙌🔥</p>
+    </div>
+
+  </div><!-- /speech-col -->
+</div><!-- /scene -->
+
+<!-- FOOTER -->
+<div class="footer-bar">
+  <span>📧 spa23111992@gmail.com &nbsp;|&nbsp; 📱 +91 9995667550 &nbsp;|&nbsp; 🔗 linkedin.com/in/sumith-ajith-8b9959134</span>
+  <span>482 / 189 / 190 Visa Ready • English C2 • Bangalore → Australia 🛫</span>
+</div>
+
+<script>
+/* ================================================================
+   SPEECH SCRIPT
+   ================================================================ */
+const script = [
+  { id:'bubble0', rate:1.1, pitch:1.3,
+    text:"G'day! Okay I'm not actually Australian yet — but I'm working on it! Instead of a boring To Whom It May Concern opener, I thought I'd just talk to you like a real person. Grab a flat white, let's go!" },
+  { id:'card0', rate:1.08, pitch:1.25,
+    text:"So who am I? I'm a Lead QA Automation Architect who's been genuinely obsessed with automation for 13 plus years. I take those slow, clunky let's-test-it-manually-on-Friday-afternoon QA teams and turn them into fast, confident, automated release machines. And here's the thing — I've already done it right here in Australia! Commonwealth Bank of Australia and Telstra. Two of the biggest names in the country. I know how Australian enterprise teams work, I've shipped in that environment, and I genuinely loved every bit of it!" },
+  { id:'bubble1', rate:1.12, pitch:1.3,
+    text:"Alright, this one's my all-time favourite flex — a Playwright and Cucumber BDD framework I built from scratch ended up being used by 150 plus teams at Telstra. That is not a typo. One hundred and fifty! No cake, no shout-out in the all-hands — just the quiet satisfaction of watching something you built go absolutely massive!" },
+  { id:'card1', rate:1.08, pitch:1.25,
+    text:"I love a good metric — and these are 100 percent real. Regression cycles down 45 percent. Manual testing grind cut by 40 percent. Team efficiency up 30 percent. Led a crew of over 10 engineers while doing all of this. Plus an AI agent that auto-writes test cases from Jira, and full AWS serverless CI/CD pipelines. Not a bad scorecard, right?" },
+  { id:'bubble2', rate:1.1, pitch:1.28,
+    text:"And this is the thing I'm most proud of — I built an AI agent that reads Jira tickets and generates test cases automatically. The whole team cheered when it went live! Nobody's written a test case by hand since. That's the automate the boring stuff, free up time for the good stuff energy I bring to every single team!" },
+  { id:'card2', rate:1.06, pitch:1.22,
+    text:"So why Australia? Honestly — Australia isn't just a destination for me, it's where I've already done my best work. I understand the culture, the enterprise landscape, and what Australian tech teams actually value: no-nonsense delivery, collaborative energy, and tools that work in production. What I'd bring right now: frameworks built to scale — 150 Telstra teams didn't happen by accident. Measurable ROI on automation. Faster, safer releases. AI-powered quality tools that I build myself. And a team culture where engineers actually enjoy testing — yes, I've built that too!" },
+  { id:'bubble3', rate:1.1, pitch:1.28,
+    text:"Visa sponsorship? Absolutely open to a 482, 189, or 190 — I've already started my permanent residency journey and I'm serious about making Australia my long-term home. Notice period? Flexible and quick to move! English? You just read my entire cover letter, so I think we're sorted. And my favourite Australian thing so far? The coffee culture is genuinely unmatched. As a food photographer, I've had more camera-worthy flat whites than I can count. My DSLR has very strong opinions about latte art — but the automation work always comes first, I promise!" },
+  { id:'card3', rate:1.05, pitch:1.2,
+    text:"And here's my full toolkit — quite a big one, bear with me! Selenium, Playwright, Appium, Java, Python, TypeScript, Cucumber BDD, REST Assured, Karate, AWS Lambda, Docker, Kubernetes, Azure DevOps, GitHub Actions, Groq AI, LLM-powered test agents, Jira Zephyr, and Splunk. Ready to plug in from day one!" },
+  { id:'bubble4', rate:1.1, pitch:1.28,
+    text:"If you bring me on board, I'm genuinely committed to making your releases faster, your bugs rarer, your dashboards something the CTO actually shows off, and your engineers proud of the quality they ship. I'd love to have a chat — even a quick 15-minute intro call would be fantastic. Let's build something great together!" }
+];
+
+/* ================================================================
+   STATE
+   ================================================================ */
+const synth = window.speechSynthesis;
+let state      = 'idle';
+let currentIdx = 0;
+let utterance  = null;
+let nextTimeout= null;
+let doneSet    = new Set();
+
+/* ================================================================
+   HELPERS
+   ================================================================ */
+function getVoice(){
+  const voices = synth.getVoices();
+  const preferred = ['Google UK English Male','Microsoft Ryan','Daniel','Alex','Google US English','Karen','Google Australian English'];
+  for (const name of preferred){
+    const v = voices.find(v=>v.name.includes(name));
+    if(v) return v;
+  }
+  return voices.find(v=>v.lang.startsWith('en') && /(male|guy|ryan|daniel)/i.test(v.name))
+      || voices.find(v=>v.lang==='en-AU'||v.lang==='en-GB'||v.lang==='en-US')
+      || voices[0];
+}
+function scrollInto(id){ const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+function highlight(id){
+  document.querySelectorAll('.section-card,.speech-bubble').forEach(el=>el.classList.remove('highlight'));
+  const el=document.getElementById(id); if(el) el.classList.add('highlight');
+}
+function clearHighlight(){ document.querySelectorAll('.section-card,.speech-bubble').forEach(el=>el.classList.remove('highlight')); }
+function updateDots(){
+  document.querySelectorAll('.step-dot').forEach((dot,i)=>{
+    dot.classList.remove('active','done');
+    if(doneSet.has(i)) dot.classList.add('done');
+    if(i===currentIdx && state==='playing') dot.classList.add('active');
+  });
+}
+function updateBtn(){
+  const btn=document.getElementById('playBtn');
+  if(state==='playing'){ btn.textContent='⏹ STOP'; btn.classList.add('stop-mode'); }
+  else { btn.textContent = state==='paused' ? '▶ RESUME' : '▶ READ IT TO ME'; btn.classList.remove('stop-mode'); }
+}
+function updateProgress(){ document.getElementById('prog').style.width=Math.round(((currentIdx+1)/script.length)*100)+'%'; }
+
+/* ================================================================
+   CORE: speak one block
+   ================================================================ */
+function speakBlock(idx){
+  if(idx>=script.length){ onAllDone(); return; }
+  if(state!=='playing') return;
+  currentIdx=idx;
+  const step=script[idx];
+  scrollInto(step.id); highlight(step.id); updateProgress(); updateDots();
+  document.getElementById('readingInd').classList.add('active');
+  const cw=document.getElementById('charWrapper');
+  cw.classList.remove('bounce'); cw.classList.add('wiggle');
+  setTimeout(()=>{ cw.classList.remove('wiggle'); cw.classList.add('bounce'); },600);
+  synth.cancel();
+  utterance=new SpeechSynthesisUtterance(step.text);
+  utterance.voice=getVoice();
+  utterance.rate=step.rate||1.05;
+  utterance.pitch=step.pitch||1.2;
+  utterance.volume=1;
+  utterance.onend=()=>{ if(state!=='playing') return; doneSet.add(idx); updateDots(); nextTimeout=setTimeout(()=>speakBlock(idx+1),500); };
+  utterance.onerror=()=>{ if(state!=='playing') return; doneSet.add(idx); updateDots(); nextTimeout=setTimeout(()=>speakBlock(idx+1),500); };
+  synth.speak(utterance);
+}
+
+/* ================================================================
+   CONTROLS
+   ================================================================ */
+function doPlay(){
+  synth.cancel();
+  if(nextTimeout){clearTimeout(nextTimeout);nextTimeout=null;}
+  doneSet.clear(); currentIdx=0; state='playing';
+  document.getElementById('prog').style.width='0%';
+  clearHighlight(); updateBtn(); updateDots();
+  if(synth.getVoices().length===0){ synth.onvoiceschanged=()=>speakBlock(0); } else { speakBlock(0); }
+}
+function doStop(){
+  synth.cancel();
+  if(nextTimeout){clearTimeout(nextTimeout);nextTimeout=null;}
+  state='paused';
+  document.getElementById('readingInd').classList.remove('active');
+  updateBtn(); updateDots();
+}
+function doResume(){ state='playing'; updateBtn(); updateDots(); speakBlock(currentIdx); }
+function onAllDone(){
+  synth.cancel();
+  if(nextTimeout){clearTimeout(nextTimeout);nextTimeout=null;}
+  state='idle'; currentIdx=0;
+  document.getElementById('readingInd').classList.remove('active');
+  document.getElementById('prog').style.width='100%';
+  clearHighlight(); updateBtn(); updateDots();
+}
+
+/* ================================================================
+   BUTTON HANDLER
+   ================================================================ */
+document.getElementById('playBtn').addEventListener('click',()=>{
+  if(state==='idle') doPlay();
+  else if(state==='playing') doStop();
+  else if(state==='paused') doResume();
+});
+
+/* ================================================================
+   BUILD STEP DOTS
+   ================================================================ */
+const dotContainer=document.getElementById('stepDots');
+script.forEach((step,i)=>{
+  const dot=document.createElement('div');
+  dot.className='step-dot'; dot.textContent=i+1;
+  dot.title='Jump to section '+(i+1);
+  dot.addEventListener('click',()=>{
+    if(state==='playing'){synth.cancel();if(nextTimeout){clearTimeout(nextTimeout);nextTimeout=null;}}
+    state='playing'; currentIdx=i; updateBtn(); speakBlock(i);
+  });
+  dotContainer.appendChild(dot);
+});
+
+/* ================================================================
+   AUTO-TIMER (10s)
+   ================================================================ */
+(function(){
+  const timerBox=document.getElementById('autoTimer');
+  const countEl=document.getElementById('countdown');
+  timerBox.style.display='block';
+  let n=10;
+  const interval=setInterval(()=>{ n--; countEl.textContent=n; if(n<=0) clearInterval(interval); },1000);
+  const t=setTimeout(()=>{ timerBox.style.display='none'; if(state==='idle') document.getElementById('playBtn').click(); },10000);
+  document.getElementById('playBtn').addEventListener('click',()=>{ clearTimeout(t); clearInterval(interval); timerBox.style.display='none'; },{once:true});
+})();
+
+window.addEventListener('load',()=>{
+  synth.getVoices();
+  if(typeof synth.onvoiceschanged!=='undefined') synth.onvoiceschanged=()=>synth.getVoices();
+});
+</script>
+</body>
+</html>
