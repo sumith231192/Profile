@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>LinkedIn Job Agent — Sumith Ajith</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,700&family=Nunito:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#FFF7EC;--bg2:#FFEFD9;--surface:#FFFFFF;--border:#F2E3CC;
+  --text:#2A1F14;--muted:#8A7762;--accent:#E07A2B;--accent-light:#FFE7CC;
+  --accent-mid:#F59A3E;--peach:#FFB088;--peach-light:#FFE4D2;
+  --green:#3FA572;--green-light:#D8F5E3;
+  --blue:#4B89C7;--blue-light:#DDEEFB;
+  --pink:#E26D9B;--pink-light:#FBDCE9;
+  --purple:#9B6CC8;--purple-light:#EBDCF7;
+  --teal:#2DAFA0;--teal-light:#D2F2EE;
+  --yellow:#F4C842;--yellow-light:#FFF1C2;
+  --radius:22px;
+  --shadow:0 8px 32px rgba(42,31,20,.09);
+  --shadow-lg:0 20px 60px rgba(42,31,20,.16);
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;line-height:1.65;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 15% 8%, rgba(255,176,136,.18) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 85% 65%, rgba(245,200,66,.14) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 35% at 50% 95%, rgba(155,108,200,.08) 0%, transparent 50%);
+  background-attachment:fixed;
+  overflow-x:hidden;
+}
+
+/* ═══════════════════════════════════════
+   CURSOR TRAIL
+═══════════════════════════════════════ */
+.cursor-trail{position:fixed;width:8px;height:8px;border-radius:50%;background:var(--accent-mid);pointer-events:none;z-index:9999;opacity:0;transform:translate(-50%,-50%);transition:opacity .3s}
+
+/* ═══════════════════════════════════════
+   AUDIO COUNTDOWN OVERLAY
+═══════════════════════════════════════ */
+#audio-countdown{
+  position:fixed;bottom:24px;right:24px;z-index:1000;
+  background:rgba(42,31,20,.96);color:#FFF8EE;
+  border-radius:20px;padding:16px 22px;
+  display:flex;align-items:center;gap:14px;
+  box-shadow:0 12px 40px rgba(42,31,20,.35);
+  border:1px solid rgba(245,154,62,.3);
+  backdrop-filter:blur(10px);
+  transform:translateY(100px);opacity:0;
+  transition:all .5s cubic-bezier(.34,1.4,.64,1);
+  font-family:'Nunito',sans-serif;
+}
+#audio-countdown.show{transform:translateY(0);opacity:1}
+#audio-countdown.hide{transform:translateY(100px);opacity:0}
+.cd-ring{width:48px;height:48px;position:relative;flex-shrink:0}
+.cd-ring svg{transform:rotate(-90deg)}
+.cd-ring circle{fill:none;stroke:rgba(245,154,62,.25);stroke-width:4}
+.cd-ring .cd-progress{stroke:var(--accent-mid);stroke-linecap:round;stroke-dasharray:113;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear}
+.cd-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Fraunces',serif;font-size:17px;font-weight:800;color:var(--accent-mid)}
+.cd-text{flex:1}
+.cd-title{font-size:13px;font-weight:800;margin-bottom:2px}
+.cd-sub{font-size:11.5px;color:rgba(255,248,238,.6)}
+.cd-btns{display:flex;gap:8px}
+.cd-btn{padding:7px 14px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Nunito',sans-serif;transition:all .2s}
+.cd-btn.now{background:var(--accent-mid);color:var(--text)}
+.cd-btn.now:hover{background:#FFB05A}
+.cd-btn.skip{background:rgba(255,255,255,.12);color:#FFF8EE}
+.cd-btn.skip:hover{background:rgba(255,255,255,.22)}
+
+/* ═══════════════════════════════════════
+   FLOATING PLAYER BAR
+═══════════════════════════════════════ */
+#speak-bar{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(110px);
+  background:linear-gradient(135deg,#2A1F14,#3D2A18);color:#FFF8EE;
+  padding:14px 20px;border-radius:100px;
+  display:flex;align-items:center;gap:12px;
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
+  z-index:999;transition:transform .45s cubic-bezier(.34,1.35,.64,1);
+  box-shadow:0 16px 50px rgba(224,122,43,.35),0 0 0 1px rgba(245,154,62,.25);
+  min-width:280px;
+}
+#speak-bar.visible{transform:translateX(-50%) translateY(0)}
+.sb-left{display:flex;align-items:center;gap:10px;flex:1}
+.eq-wrap{display:flex;align-items:flex-end;gap:2.5px;height:16px}
+.eq-bar{width:3px;background:linear-gradient(to top,var(--accent),var(--peach));border-radius:3px;animation:eq .55s ease-in-out infinite}
+.eq-bar:nth-child(1){height:5px;animation-delay:0s}
+.eq-bar:nth-child(2){height:11px;animation-delay:.1s}
+.eq-bar:nth-child(3){height:8px;animation-delay:.2s}
+.eq-bar:nth-child(4){height:14px;animation-delay:.05s}
+.eq-bar:nth-child(5){height:6px;animation-delay:.15s}
+@keyframes eq{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1.5)}}
+#speak-label{font-size:13px;color:rgba(255,248,238,.9)}
+.sb-step-indicator{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,248,238,.5);white-space:nowrap}
+#stop-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#FFF8EE;cursor:pointer;border-radius:100px;padding:6px 16px;font-size:12px;font-weight:700;transition:all .2s;font-family:'Nunito',sans-serif}
+#stop-btn:hover{background:rgba(255,255,255,.28);border-color:rgba(255,255,255,.5)}
+
+/* ═══════════════════════════════════════
+   SCROLL PROGRESS
+═══════════════════════════════════════ */
+.progress-wrap{position:sticky;top:0;z-index:100;background:rgba(255,247,236,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.progress-bar-inner{height:3px;background:linear-gradient(90deg,var(--accent),var(--accent-mid),var(--peach));width:0%;transition:width .2s ease;border-radius:0 4px 4px 0;box-shadow:0 0 10px rgba(245,154,62,.5)}
+.progress-label{padding:10px 24px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.progress-chapter{font-weight:600;color:var(--accent);font-size:11px;transition:all .4s}
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+header{
+  background:linear-gradient(150deg,#1A1108 0%,#2A1F14 45%,#4A2E18 80%,#6B3C1A 100%);
+  color:#FFF8EE;padding:72px 24px 64px;text-align:center;position:relative;overflow:hidden;
+}
+header::before{content:'';position:absolute;top:-120px;right:-120px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(245,154,62,.28),transparent 68%);animation:breathe 6s ease-in-out infinite}
+header::after{content:'';position:absolute;bottom:-80px;left:-80px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,176,136,.2),transparent 68%);animation:breathe 8s ease-in-out infinite reverse}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.header-inner{position:relative;z-index:1;max-width:700px;margin:0 auto}
+.header-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,rgba(245,154,62,.95),rgba(255,176,136,.9));
+  color:var(--text);font-size:11.5px;font-weight:800;padding:7px 18px;
+  border-radius:100px;letter-spacing:.6px;margin-bottom:28px;
+  box-shadow:0 6px 20px rgba(245,154,62,.45);
+  text-transform:uppercase;font-family:'DM Mono',monospace;
+}
+.live-dot{width:7px;height:7px;background:#2A1F14;border-radius:50%;animation:pulse-dot 1.5s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+header h1{
+  font-family:'Fraunces',serif;font-size:clamp(32px,5.5vw,54px);
+  font-weight:800;line-height:1.08;margin-bottom:22px;color:#FFF8EE;letter-spacing:-.8px;
+}
+header h1 em{
+  font-style:italic;
+  background:linear-gradient(120deg,#F59A3E,#FFB088,#F4C842);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.header-sub{font-size:15.5px;color:rgba(255,248,238,.75);max-width:560px;margin:0 auto 36px;line-height:1.8}
+
+.author-row{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#F59A3E,#FFB088,#F4C842);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-size:22px;font-weight:800;color:var(--text);
+  flex-shrink:0;box-shadow:0 8px 24px rgba(245,154,62,.5);
+  animation:avatar-float 4s ease-in-out infinite;
+}
+@keyframes avatar-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.author-name{font-weight:800;font-size:16px;color:#FFF8EE}
+.author-role{font-size:12px;color:rgba(255,248,238,.55);font-family:'DM Mono',monospace;margin-top:2px}
+
+.header-oneliner{
+  font-size:14.5px;color:rgba(255,248,238,.88);font-style:italic;max-width:540px;
+  margin:0 auto 28px;line-height:1.7;
+  background:rgba(245,154,62,.1);padding:14px 22px;border-radius:16px;
+  border:1px solid rgba(245,154,62,.25);
+}
+
+.header-links{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.hl-btn{
+  padding:12px 24px;border-radius:100px;font-size:13.5px;font-weight:700;
+  cursor:pointer;text-decoration:none;transition:all .28s cubic-bezier(.34,1.3,.64,1);
+  font-family:'Nunito',sans-serif;border:none;display:inline-flex;align-items:center;gap:7px;
+}
+.hl-btn.primary{
+  background:linear-gradient(135deg,var(--accent-mid),var(--peach));
+  color:var(--text);box-shadow:0 8px 24px rgba(245,154,62,.45);
+}
+.hl-btn.primary:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 12px 32px rgba(245,154,62,.6)}
+.hl-btn.ghost{background:rgba(255,248,238,.1);color:#FFF8EE;border:1.5px solid rgba(255,248,238,.28)}
+.hl-btn.ghost:hover{background:rgba(255,248,238,.2);border-color:rgba(255,248,238,.7);transform:translateY(-3px)}
+
+/* ═══════════════════════════════════════
+   MAIN LAYOUT
+═══════════════════════════════════════ */
+main{max-width:720px;margin:0 auto;padding:52px 22px 100px}
+
+.section-eyebrow{
+  font-family:'DM Mono',monospace;font-size:10.5px;font-weight:600;
+  color:var(--accent);letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;
+}
+.section-eyebrow::before{content:'';width:22px;height:2px;background:linear-gradient(90deg,var(--accent-mid),var(--peach));border-radius:2px}
+.section-title{font-family:'Fraunces',serif;font-size:32px;font-weight:700;line-height:1.15;margin-bottom:10px;letter-spacing:-.4px}
+.section-sub{font-size:15px;color:var(--muted);margin-bottom:32px;line-height:1.75}
+
+.divider{
+  border:none;height:30px;margin:56px 0;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='30' viewBox='0 0 100 30'><circle cx='12' cy='15' r='3.5' fill='%23F59A3E'/><circle cx='50' cy='15' r='5' fill='%23FFB088' opacity='.7'/><circle cx='88' cy='15' r='3.5' fill='%23F4C842'/></svg>") center center no-repeat;
+  background-size:contain;
+}
+
+/* ═══════════════════════════════════════
+   HERO QUOTE
+═══════════════════════════════════════ */
+.hero-quote{
+  background:linear-gradient(145deg,#1A1108 0%,#2A1F14 60%,#3D2A18 100%);
+  color:#FFF8EE;border-radius:28px;padding:44px 38px;margin-bottom:32px;
+  position:relative;overflow:hidden;
+  box-shadow:0 24px 64px rgba(42,31,20,.25),0 0 0 1px rgba(245,154,62,.12);
+}
+.hero-quote::before{content:'';position:absolute;top:-100px;right:-100px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(245,154,62,.25),transparent 68%)}
+.hero-quote::after{content:'';position:absolute;bottom:-70px;left:-70px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(255,176,136,.15),transparent 68%)}
+.hq-robot{font-size:48px;margin-bottom:18px;display:inline-block;animation:wave 2.8s ease-in-out infinite}
+@keyframes wave{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(9deg) scale(1.05)}75%{transform:rotate(-9deg) scale(1.05)}}
+.hq-main{font-family:'Fraunces',serif;font-size:clamp(19px,3.2vw,25px);font-weight:700;font-style:italic;line-height:1.4;color:#FFF8EE;margin-bottom:20px;position:relative;z-index:1}
+.hq-main em{color:var(--accent-mid);font-style:normal;background:linear-gradient(120deg,#F59A3E,#FFD088);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hq-sub{font-size:14.5px;color:rgba(255,248,238,.82);line-height:1.9;position:relative;z-index:1}
+.hq-sub strong{color:var(--accent-mid)}
+.hq-aside{margin-top:24px;padding:20px 24px;background:rgba(245,154,62,.13);border:1px solid rgba(245,154,62,.3);border-radius:18px;font-size:14px;color:rgba(255,248,238,.9);line-height:1.78;position:relative;z-index:1;font-style:italic}
+
+/* ═══════════════════════════════════════
+   WIP CARD
+═══════════════════════════════════════ */
+.wip-card{
+  background:linear-gradient(135deg,var(--accent-light),var(--peach-light));
+  border:1.5px dashed #E8B27A;border-radius:20px;padding:24px 28px;margin-bottom:36px;
+  display:flex;align-items:flex-start;gap:18px;position:relative;overflow:hidden;
+}
+.wip-card::before{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:rgba(255,176,136,.28)}
+.wip-emoji{font-size:32px;flex-shrink:0;margin-top:2px;position:relative;z-index:1;animation:wiggle 3s ease-in-out infinite}
+@keyframes wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(4deg)}}
+.wip-content{position:relative;z-index:1}
+.wip-title{font-size:15.5px;font-weight:900;color:var(--text);margin-bottom:9px}
+.wip-desc{font-size:13.5px;color:#5C4B1E;line-height:1.72}
+.wip-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.wip-pill{border-radius:100px;padding:5px 14px;font-size:11.5px;font-weight:700;font-family:'DM Mono',monospace}
+.wip-pill.done{background:var(--green-light);border:1.5px solid rgba(63,165,114,.45);color:var(--green)}
+.wip-pill.wip{background:var(--purple-light);border:1.5px solid rgba(155,108,200,.45);color:var(--purple)}
+.wip-pill.info{background:rgba(245,154,62,.2);border:1.5px solid rgba(245,154,62,.5);color:var(--accent)}
+
+/* ═══════════════════════════════════════
+   FLOW CARD
+═══════════════════════════════════════ */
+.flow-card{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:28px 22px;margin-bottom:36px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.flow-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--accent-mid),var(--peach),var(--yellow),var(--green),var(--blue),var(--purple))}
+.flow-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;text-align:center;margin-bottom:8px}
+.flow-sub{font-size:13.5px;color:var(--muted);text-align:center;margin-bottom:20px;line-height:1.65}
+.flow-svg-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:16px;background:linear-gradient(180deg,#FFFCF6,#FFF7EC);padding:18px 10px;border:1px solid var(--border);text-align:center}
+.flow-img{display:block;margin:0 auto;width:100%;max-width:680px;height:auto;border-radius:10px}
+.flow-legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;font-size:12px;color:var(--muted)}
+.flow-legend span{display:inline-flex;align-items:center;gap:6px}
+.flow-legend .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* ═══════════════════════════════════════
+   CONTACT CTA
+═══════════════════════════════════════ */
+.contact-cta{
+  background:linear-gradient(135deg,#FFF8EE,#FFE7CC);border:1.5px solid #E8B27A;
+  border-radius:20px;padding:28px 30px;margin-top:24px;margin-bottom:36px;
+  text-align:center;position:relative;overflow:hidden;
+  box-shadow:0 8px 28px rgba(245,154,62,.12);
+}
+.contact-cta::before{content:'';position:absolute;top:-50px;right:-50px;width:140px;height:140px;border-radius:50%;background:rgba(245,154,62,.18)}
+.contact-cta-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:6px;position:relative;z-index:1}
+.contact-cta-sub{font-size:13.5px;color:var(--muted);margin-bottom:18px;position:relative;z-index:1}
+.contact-cta-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1}
+.cc-btn{padding:11px 22px;border-radius:100px;font-size:13px;font-weight:700;text-decoration:none;transition:all .25s cubic-bezier(.34,1.3,.64,1);display:inline-flex;align-items:center;gap:7px}
+.cc-btn.primary{background:linear-gradient(135deg,var(--accent-mid),var(--peach));color:var(--text);box-shadow:0 6px 18px rgba(245,154,62,.4)}
+.cc-btn.primary:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 10px 28px rgba(245,154,62,.55)}
+.cc-btn.outline{background:rgba(255,255,255,.7);color:var(--text);border:1.5px solid #E8B27A}
+.cc-btn.outline:hover{background:#FFF;transform:translateY(-3px);box-shadow:0 6px 18px rgba(42,31,20,.08)}
+
+/* ═══════════════════════════════════════
+   SCROLL-DRIVEN STEP CARDS
+═══════════════════════════════════════ */
+.steps-intro{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:24px 28px;margin-bottom:24px;display:flex;align-items:center;gap:16px;
+  box-shadow:var(--shadow);
+}
+.steps-intro-icon{font-size:32px;flex-shrink:0;animation:spin-slow 8s linear infinite}
+@keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.steps-intro-text{font-size:14px;color:var(--muted);line-height:1.7}
+.steps-intro-text strong{color:var(--text);font-weight:800}
+
+.steps-grid{display:flex;flex-direction:column;gap:16px;margin-bottom:36px}
+
+.step-card{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;
+  opacity:0;transform:translateY(28px) scale(.98);
+  transition:opacity .55s ease, transform .55s cubic-bezier(.34,1.2,.64,1), box-shadow .3s, border-color .3s;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  position:relative;
+}
+.step-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  opacity:0;transition:opacity .3s;
+}
+.s-amber::after{background:linear-gradient(90deg,var(--accent),var(--accent-mid))}
+.s-green::after{background:linear-gradient(90deg,var(--green),#7AE8A9)}
+.s-blue::after{background:linear-gradient(90deg,var(--blue),#8EC9F5)}
+.s-purple::after{background:linear-gradient(90deg,var(--purple),#C49AEF)}
+.s-coral::after{background:linear-gradient(90deg,var(--peach),#FFD4BA)}
+.s-teal::after{background:linear-gradient(90deg,var(--teal),#7AE8DE)}
+.s-pink::after{background:linear-gradient(90deg,var(--pink),#F5A8C8)}
+
+.step-card.visible{opacity:1;transform:translateY(0) scale(1)}
+.step-card:hover{box-shadow:0 14px 40px rgba(42,31,20,.12);transform:translateY(-3px) scale(1.002);border-color:#E8C99A}
+.step-card:hover::after{opacity:1}
+.step-card.open{border-color:transparent;box-shadow:0 16px 48px rgba(42,31,20,.14)}
+.step-card.open::after{opacity:1}
+.step-card.speaking{box-shadow:0 0 0 3px rgba(245,154,62,.3),0 16px 48px rgba(245,154,62,.2)}
+.step-card.scroll-active{border-color:var(--accent-mid);box-shadow:0 0 0 2px rgba(245,154,62,.25),var(--shadow)}
+
+.step-head{display:flex;align-items:center;gap:16px;padding:20px 24px}
+.step-emoji{
+  font-size:26px;flex-shrink:0;width:50px;height:50px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:16px;transition:transform .3s;
+}
+.step-card:hover .step-emoji{transform:scale(1.15) rotate(-4deg)}
+.step-num-badge{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;letter-spacing:1.2px;font-weight:600;text-transform:uppercase}
+.step-title{font-size:15.5px;font-weight:900;color:var(--text);line-height:1.3}
+.step-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.step-speak-btn{
+  background:var(--bg2);border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;border-radius:100px;padding:5px 13px;font-size:11px;font-weight:700;
+  transition:all .22s;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:5px;
+}
+.step-speak-btn:hover{background:var(--accent-light);border-color:var(--accent-mid);color:var(--accent)}
+.step-chevron{
+  color:var(--muted);font-size:11px;transition:transform .35s;
+  background:var(--bg2);width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.step-card.open .step-chevron{transform:rotate(180deg);background:var(--accent-light);color:var(--accent)}
+
+.step-body{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(0,.85,.5,1);border-top:0 solid var(--border)}
+.step-card.open .step-body{max-height:900px;border-top:1.5px solid var(--border)}
+.step-body-inner{padding:24px}
+.step-desc{font-size:14px;color:#4A3F33;line-height:1.82;margin-bottom:16px}
+.step-funny{
+  background:linear-gradient(135deg,var(--accent-light),var(--peach-light));
+  border-left:4px solid var(--accent-mid);border-radius:0 14px 14px 0;
+  padding:14px 18px;font-size:13.5px;color:#6B4A1E;line-height:1.7;
+  margin-bottom:16px;font-style:italic;font-weight:500;
+}
+.step-tech-row{display:flex;flex-wrap:wrap;gap:8px}
+.stech{
+  font-family:'DM Mono',monospace;font-size:10.5px;
+  background:var(--bg2);border:1px solid var(--border);color:var(--muted);
+  border-radius:8px;padding:4px 10px;font-weight:500;
+  transition:all .2s;
+}
+.stech:hover{background:var(--accent-light);border-color:var(--accent-mid);color:var(--accent)}
+
+.s-amber .step-emoji{background:var(--accent-light)}
+.s-green .step-emoji{background:var(--green-light)}
+.s-blue .step-emoji{background:var(--blue-light)}
+.s-purple .step-emoji{background:var(--purple-light)}
+.s-coral .step-emoji{background:var(--peach-light)}
+.s-teal .step-emoji{background:var(--teal-light)}
+.s-pink .step-emoji{background:var(--pink-light)}
+
+/* ═══════════════════════════════════════
+   READ BUTTON
+═══════════════════════════════════════ */
+.read-btn{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--surface);border:1.5px solid var(--border);color:var(--text);
+  padding:10px 20px;border-radius:100px;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .25s cubic-bezier(.34,1.3,.64,1);
+  font-family:'Nunito',sans-serif;margin-bottom:26px;
+  box-shadow:0 2px 10px rgba(42,31,20,.05);
+}
+.read-btn:hover{border-color:var(--accent-mid);color:var(--accent);background:var(--accent-light);transform:translateY(-2px) scale(1.02);box-shadow:0 6px 20px rgba(245,154,62,.2)}
+.read-btn svg{width:15px;height:15px;flex-shrink:0}
+
+/* ═══════════════════════════════════════
+   STATS
+═══════════════════════════════════════ */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:48px}
+.stat-card{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:20px;
+  padding:24px 16px;text-align:center;
+  transition:all .3s cubic-bezier(.34,1.3,.64,1);
+  box-shadow:var(--shadow);
+  opacity:0;transform:translateY(20px);
+}
+.stat-card.visible{opacity:1;transform:translateY(0)}
+.stat-card:hover{transform:translateY(-5px) scale(1.03);border-color:var(--accent-mid);box-shadow:0 12px 30px rgba(245,154,62,.2)}
+.stat-val{
+  font-family:'Fraunces',serif;font-size:36px;font-weight:800;display:block;
+  line-height:1;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--accent),var(--peach));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.stat-label{font-size:11.5px;color:var(--muted);line-height:1.5;font-weight:600}
+
+/* ═══════════════════════════════════════
+   PHILOSOPHY
+═══════════════════════════════════════ */
+.philosophy-card{
+  background:linear-gradient(145deg,#FFFBF4,#FFF0D9);
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:36px 32px;margin-bottom:36px;position:relative;overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.philosophy-card::before{content:'';position:absolute;top:-60px;right:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(245,154,62,.18),transparent 70%)}
+.philosophy-card h3{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:24px;line-height:1.38;position:relative;z-index:1}
+.phil-point{display:flex;gap:16px;margin-bottom:20px;align-items:flex-start;position:relative;z-index:1}
+.phil-point:last-child{margin-bottom:0}
+.phil-icon{font-size:22px;flex-shrink:0;margin-top:1px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(255,255,255,.75);box-shadow:0 2px 8px rgba(42,31,20,.06)}
+.phil-text{font-size:14.5px;color:#4A3F33;line-height:1.75}
+.phil-text strong{color:var(--text);font-weight:800}
+
+/* ═══════════════════════════════════════
+   THANKS GRID
+═══════════════════════════════════════ */
+.thanks-intro{font-size:14.5px;color:var(--muted);line-height:1.78;margin-bottom:24px}
+.thanks-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:36px}
+.thank-card{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:16px;
+  padding:20px;display:flex;align-items:flex-start;gap:14px;
+  transition:all .28s cubic-bezier(.34,1.3,.64,1);
+  box-shadow:var(--shadow);
+}
+.thank-card:hover{border-color:var(--accent-mid);transform:translateY(-4px) scale(1.01);box-shadow:0 12px 30px rgba(42,31,20,.09)}
+.thank-icon{font-size:26px;flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:var(--bg2)}
+.thank-name{font-size:14px;font-weight:900;color:var(--text);margin-bottom:5px}
+.thank-desc{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* ═══════════════════════════════════════
+   FINAL CARD
+═══════════════════════════════════════ */
+.final-card{
+  background:linear-gradient(145deg,#1A1108 0%,#2A1F14 50%,#4A2E18 100%);
+  color:#FFF8EE;border-radius:28px;padding:48px 36px;text-align:center;
+  margin-top:48px;position:relative;overflow:hidden;
+  box-shadow:0 24px 70px rgba(42,31,20,.28),0 0 0 1px rgba(245,154,62,.12);
+}
+.final-card::before{content:'';position:absolute;top:-120px;left:-120px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(245,154,62,.2),transparent 68%)}
+.final-card::after{content:'';position:absolute;bottom:-90px;right:-90px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(255,176,136,.14),transparent 68%)}
+.final-card h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;font-style:italic;margin-bottom:16px;color:#FFF8EE;line-height:1.3;position:relative;z-index:1}
+.final-card p{font-size:15px;color:rgba(255,248,238,.75);line-height:1.82;margin-bottom:30px;position:relative;z-index:1;max-width:520px;margin-left:auto;margin-right:auto}
+.final-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.fb{padding:14px 28px;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .28s cubic-bezier(.34,1.3,.64,1);font-family:'Nunito',sans-serif;display:inline-flex;align-items:center;gap:7px}
+.fb.primary{background:linear-gradient(135deg,var(--accent-mid),var(--peach));color:var(--text);border:none;box-shadow:0 8px 24px rgba(245,154,62,.45)}
+.fb.primary:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 14px 36px rgba(245,154,62,.6)}
+.fb.outline{background:transparent;color:#FFF8EE;border:1.5px solid rgba(255,248,238,.32)}
+.fb.outline:hover{border-color:rgba(255,248,238,.8);transform:translateY(-3px);background:rgba(255,248,238,.1)}
+
+.footer-quote{text-align:center;margin-top:40px;padding:28px;font-family:'Fraunces',serif;font-size:20px;font-style:italic;color:var(--muted)}
+
+/* ═══════════════════════════════════════
+   SCROLL CHAPTER MARKERS
+═══════════════════════════════════════ */
+.chapter-marker{
+  display:flex;align-items:center;gap:14px;margin:48px 0 28px;
+  opacity:0;transform:translateX(-20px);
+  transition:opacity .6s ease,transform .6s ease;
+}
+.chapter-marker.visible{opacity:1;transform:translateX(0)}
+.chapter-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+.chapter-label{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap}
+.chapter-dot{width:8px;height:8px;border-radius:50%;background:var(--accent-mid);flex-shrink:0}
+
+@media(max-width:520px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .thanks-grid{grid-template-columns:1fr}
+  header{padding:52px 20px 44px}
+  main{padding:36px 16px 70px}
+  .hero-quote,.philosophy-card,.final-card{padding:28px 22px}
+  .step-head{padding:16px 18px}
+  #audio-countdown{right:12px;bottom:12px;padding:12px 16px;gap:10px}
+}
+</style>
+</head>
+<body>
+
+<!-- Cursor trail elements -->
+<div class="cursor-trail" id="ct1"></div>
+<div class="cursor-trail" id="ct2"></div>
+<div class="cursor-trail" id="ct3"></div>
+
+<!-- ═══ AUDIO COUNTDOWN ═══ -->
+<div id="audio-countdown">
+  <div class="cd-ring">
+    <svg width="48" height="48" viewBox="0 0 48 48">
+      <circle cx="24" cy="24" r="18" stroke-width="4"/>
+      <circle id="cd-progress-circle" class="cd-progress" cx="24" cy="24" r="18"/>
+    </svg>
+    <div class="cd-num" id="cd-num">10</div>
+  </div>
+  <div class="cd-text">
+    <div class="cd-title">🔊 Guided tour starting...</div>
+    <div class="cd-sub">I'll scroll through everything with you!</div>
+  </div>
+  <div class="cd-btns">
+    <button class="cd-btn now" onclick="startNow()">Play now</button>
+    <button class="cd-btn skip" onclick="dismissCountdown()">Dismiss</button>
+  </div>
+</div>
+
+<!-- ═══ FLOATING PLAYER ═══ -->
+<div id="speak-bar">
+  <div class="sb-left">
+    <div class="eq-wrap">
+      <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+      <div class="eq-bar"></div><div class="eq-bar"></div>
+    </div>
+    <span id="speak-label">Speaking...</span>
+  </div>
+  <span class="sb-step-indicator" id="speak-step"></span>
+  <button id="stop-btn" onclick="stopSpeech(); stopTour()">■ Stop</button>
+</div>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="header-inner">
+    <div class="header-tag"><span class="live-dot"></span>Java + AI · Weekend Project</div>
+    <h1>Hey! I built an <em>AI agent</em><br/>that hunts jobs while I sleep 😴</h1>
+    <p class="header-sub">Real talk — automation should make YOUR life easier, not just shuffle the work around. So I built a little robot buddy that does the whole job hunt for me. Wanna see how it works?</p>
+    <div class="author-row">
+      <div class="avatar">S</div>
+      <div>
+        <div class="author-name">Sumith Ajith</div>
+        <div class="author-role">// AI Automation Architect · 13 yrs · Bangalore</div>
+      </div>
+    </div>
+    <p class="header-oneliner">Hey, I'm Sumith — 13 years deep in automation, currently AI Automation Architect. This is my proudest weekend build 👋</p>
+    <div class="header-links">
+      <a class="hl-btn primary" href="mailto:spa23111992@gmail.com">📧 Email me</a>
+      <a class="hl-btn primary" href="tel:+919995667550">📞 +91 99956 67550</a>
+      <a class="hl-btn ghost" href="https://www.linkedin.com/in/sumith-ajith-8b9959134/" target="_blank">🔗 LinkedIn</a>
+      <button class="hl-btn ghost" onclick="readFullTour()">🔊 Guided tour</button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ PROGRESS BAR ═══ -->
+<div class="progress-wrap">
+  <div class="progress-bar-inner" id="progress-bar"></div>
+  <div class="progress-label">
+    <span>🤖 LinkedIn Job Agent · Sumith's Build</span>
+    <span class="progress-chapter" id="progress-chapter">Scroll to explore</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- HERO QUOTE -->
+  <div class="hero-quote" data-chapter="Intro" style="margin-top:8px">
+    <span class="hq-robot">🤖</span>
+    <div class="hq-main">"Automation should reduce <em>YOUR</em> effort.<br/>Not just shuffle one manual chore into another." 💛</div>
+    <div class="hq-sub">
+      So here's what I did — I built an agent that hunts jobs across multiple countries, applies while I'm dreaming, and pings recruiters all on its own. Every morning I wake up to a WhatsApp summary of everything it did overnight. 📱<br/><br/>
+      Don't be scared of AI. It's here, it's friendly, and it's not going anywhere.
+      The trick isn't using AI to spit out code — it's using it to <em>think with you</em>.<br/><br/>
+      <strong>AI doesn't replace you. It turbocharges you. 🚀</strong>
+    </div>
+    <div class="hq-aside">
+      "Honestly? I should've built this in Playwright with TypeScript — or even kept it Java but wired it to Playwright instead of Selenium. The browser control is just cleaner. That's my next project — a full port. 🤔<br/><br/>
+      But here's what I'm genuinely curious about — <strong>what should I tackle next?</strong> New framework? Different architecture? Something completely left-field?<br/><br/>
+      Text me — I read everything. Let's figure it out together. 💬"
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <a href="https://wa.me/919995667550?text=Hey%20Sumith%2C%20saw%20your%20LinkedIn%20Job%20Agent%20post%20%E2%80%94%20love%20it!%20Here%27s%20what%20I%20think%20you%20should%20build%20next..." target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:#25D366;color:#fff;border-radius:100px;font-size:12.5px;font-weight:700;text-decoration:none;font-style:normal;font-family:'Nunito',sans-serif;box-shadow:0 4px 14px rgba(37,211,102,.4);transition:all .2s">💬 WhatsApp me</a>
+        <a href="https://www.linkedin.com/in/sumith-ajith-8b9959134/" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:#0A66C2;color:#fff;border-radius:100px;font-size:12.5px;font-weight:700;text-decoration:none;font-style:normal;font-family:'Nunito',sans-serif;box-shadow:0 4px 14px rgba(10,102,194,.4);transition:all .2s">🔗 LinkedIn</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wip-card">
+    <div class="wip-emoji">🚧</div>
+    <div class="wip-content">
+      <div class="wip-title">Where things stand right now</div>
+      <div class="wip-desc">Java + Maven is live and running every night. Next up — a clean Playwright + TypeScript port. Same pipeline, better browser control. And honestly, I should've started there 😄 Tell me what you think I should build next.</div>
+      <div class="wip-pills">
+        <span class="wip-pill done">✅ Java + Selenium — Live!</span>
+        <span class="wip-pill wip">🔄 TypeScript + Playwright — Cooking</span>
+        <span class="wip-pill info">⏰ Wakes up at 01:00 UTC nightly</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAPTER: PIPELINE -->
+  <div class="chapter-marker" data-chapter="The Big Picture">
+    <div class="chapter-line"></div>
+    <div class="chapter-dot"></div>
+    <div class="chapter-label">The Big Picture</div>
+    <div class="chapter-dot"></div>
+    <div class="chapter-line"></div>
+  </div>
+
+  <div data-chapter="Pipeline Overview">
+    <div class="section-eyebrow">The full flow</div>
+    <div class="section-title">Here's the whole pipeline, on one page 🗺️</div>
+    <p class="section-sub">Every box is a real piece of the system — from CV reading at the top, to the daily WhatsApp ping at the bottom. Tap the steps below to dive in!</p>
+
+    <div class="flow-card">
+      <div class="flow-title">🎯 The Whole Pipeline at a Glance</div>
+      <div class="flow-sub">Top to bottom — from "GitHub Actions wakes up" to "you got mail" 💌</div>
+      <div class="flow-svg-wrap">
+        <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNzIwIDE5ODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJMaW5rZWRJbiBKb2IgQWdlbnQgZmxvdyBkaWFncmFtIiB3aWR0aD0iNzIwIiBoZWlnaHQ9IjE5ODAiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnQW1iZXIiIHgxPSIwIiB4Mj0iMCIgeTE9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFN0NDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZEOUE4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnUHVycGxlIiB4MT0iMCIgeDI9IjAiIHkxPSIwIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0VCRENGNyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RDQzNGMCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ0dyZWVuIiB4MT0iMCIgeDI9IjAiIHkxPSIwIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4RjVFMyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0I3RUJDOSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ0JsdWUiIHgxPSIwIiB4Mj0iMCIgeTE9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRERFRUZCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQkVEREY1Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnUGVhY2giIHgxPSIwIiB4Mj0iMCIgeTE9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFNEQyIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZDREIwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnUGluayIgeDE9IjAiIHgyPSIwIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkRDRTkiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGNUMwRDYiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdZZWxsb3ciIHgxPSIwIiB4Mj0iMCIgeTE9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGMUMyIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZFMzhBIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPG1hcmtlciBpZD0iYXJyb3ciIG1hcmtlcldpZHRoPSIxMCIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iOCIgcmVmWT0iNSIgb3JpZW50PSJhdXRvIj4KICAgICAgPHBhdGggZD0iTTAsMCBMMCwxMCBMOSw1IHoiIGZpbGw9IiM4QTc3NjIiLz4KICAgIDwvbWFya2VyPgogIDwvZGVmcz4KCiAgPHJlY3Qgd2lkdGg9IjcyMCIgaGVpZ2h0PSIxOTgwIiBmaWxsPSIjRkZGN0VDIi8+CgogIDxzdHlsZT4KICAgIC5sYmx7Zm9udC1mYW1pbHk6bW9ub3NwYWNlO2ZvbnQtc2l6ZToxMHB4O2ZvbnQtd2VpZ2h0OjYwMDtmaWxsOiM4QTc3NjI7bGV0dGVyLXNwYWNpbmc6MS4ycHh9CiAgICAudHRse2ZvbnQtZmFtaWx5OidOdW5pdG8nLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE0cHg7Zm9udC13ZWlnaHQ6ODAwO2ZpbGw6IzJBMUYxNH0KICAgIC5kZXNje2ZvbnQtZmFtaWx5OidOdW5pdG8nLHNhbnMtc2VyaWY7Zm9udC1zaXplOjEwLjVweDtmaWxsOiM1QzRCMzM7Zm9udC13ZWlnaHQ6NTAwfQogICAgLnlue2ZvbnQtZmFtaWx5OidOdW5pdG8nLHNhbnMtc2VyaWY7Zm9udC1zaXplOjExcHg7Zm9udC13ZWlnaHQ6ODAwO2ZpbGw6IzJBMUYxNH0KICAgIC5hcnJ7c3Ryb2tlOiM4QTc3NjI7c3Ryb2tlLXdpZHRoOjEuODtmaWxsOm5vbmV9CiAgICAuYXJyLWRhc2h7c3Ryb2tlOiNCNUEzOEM7c3Ryb2tlLXdpZHRoOjEuNTtmaWxsOm5vbmU7c3Ryb2tlLWRhc2hhcnJheTo0IDR9CiAgPC9zdHlsZT4KCiAgPHRleHQgeD0iNTAiIHk9IjQyIiBjbGFzcz0ibGJsIj5UUklHR0VSPC90ZXh0PgogIDxyZWN0IHg9IjE2MCIgeT0iMjAiIHdpZHRoPSI0NDAiIGhlaWdodD0iNTYiIHJ4PSIxNCIgZmlsbD0idXJsKCNnQW1iZXIpIiBzdHJva2U9IiNFOEIyN0EiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMzgwIiB5PSI0NCIgY2xhc3M9InR0bCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+4o+wIEdpdEh1YiBBY3Rpb25zIOKAlCBydW5zIGF0IDAxOjAwIFVUQyBkYWlseTwvdGV4dD4KICA8dGV4dCB4PSIzODAiIHk9IjYyIiBjbGFzcz0iZGVzYyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+dWJ1bnR1LWxhdGVzdCDCtyBjaGVja291dCDCtyBzZXR1cC1qYXZhIHRlbXVyaW4gMTc8L3RleHQ+CiAgPHBhdGggZD0iTTM4MCA3NiBMMzgwIDk2IiBjbGFzcz0iYXJyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgoKICA8dGV4dCB4PSI1MCIgeT0iMTI0IiBjbGFzcz0ibGJsIj5CVUlMRDwvdGV4dD4KICA8cmVjdCB4PSIxNjAiIHk9IjEwMCIgd2lkdGg9IjQ0MCIgaGVpZ2h0PSI1NiIgcng9IjE0IiBmaWxsPSJ1cmwoI2dBbWJlcikiIHN0cm9rZT0iI0U4QjI3QSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIzODAiIHk9IjEyNCIgY2xhc3M9InR0bCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+TpiBtdm4gcGFja2FnZSDigJQgTWF2ZW4gU2hhZGUgUGx1Z2luPC90ZXh0PgogIDx0ZXh0IHg9IjM4MCIgeT0iMTQyIiBjbGFzcz0iZGVzYyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+ZmF0IEpBUiDCtyBHaXRIdWIgU2VjcmV0cyDihpIgZW52IHZhcnMgwrcgQXBwQ29uZmlnIGZhbGxiYWNrPC90ZXh0PgogIDxwYXRoIGQ9Ik0zODAgMTU2IEwzODAgMTc2IiBjbGFzcz0iYXJyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgoKICA8dGV4dCB4PSI1MCIgeT0iMjA0IiBjbGFzcz0ibGJsIj5DViBSRUFEPC90ZXh0PgogIDxyZWN0IHg9IjE2MCIgeT0iMTgwIiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjU2IiByeD0iMTQiIGZpbGw9InVybCgjZ1B1cnBsZSkiIHN0cm9rZT0iI0M1QThFMCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIzODAiIHk9IjIwNCIgY2xhc3M9InR0bCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+ThCBDVlJlYWRlckFnZW50IOKAlCBBcGFjaGUgUERGQm94IDMuMDwvdGV4dD4KICA8dGV4dCB4PSIzODAiIHk9IjIyMiIgY2xhc3M9ImRlc2MiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlBERiDihpIgcmF3IHRleHQgwrcgY2FjaGVkIMK3IE1BWF9QUk9NUFRfQ0hBUlMgMzAwMDwvdGV4dD4KICA8cGF0aCBkPSJNMzgwIDIzNiBMMzgwIDI1NiIgY2xhc3M9ImFyciIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KCiAgPHJlY3QgeD0iMTYwIiB5PSIyNjAiIHdpZHRoPSI0NDAiIGhlaWdodD0iNTYiIHJ4PSIxNCIgZmlsbD0idXJsKCNnUHVycGxlKSIgc3Ryb2tlPSIjQzVBOEUwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjM4MCIgeT0iMjg0IiBjbGFzcz0idHRsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn6egIEdyb3EgQUkg4oCUIEN2UHJvZmlsZSBwYXJzZXI8L3RleHQ+CiAgPHRleHQgeD0iMzgwIiB5PSIzMDIiIGNsYXNzPSJkZXNjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5za2lsbHMgwrcgc2VuaW9yaXR5IMK3IHllYXJzIGV4cCDCtyB0YXJnZXQgcm9sZXMgwrcgQ3ZQcm9maWxlIG9iamVjdDwvdGV4dD4KICA8cGF0aCBkPSJNMzgwIDMxNiBMMzgwIDMzNiIgY2xhc3M9ImFyciIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KCiAgPHRleHQgeD0iNTAiIHk9IjM2NCIgY2xhc3M9ImxibCI+U0VMRiBDRkc8L3RleHQ+CiAgPHJlY3QgeD0iMTYwIiB5PSIzNDAiIHdpZHRoPSI0NDAiIGhlaWdodD0iNTYiIHJ4PSIxNCIgZmlsbD0idXJsKCNnUHVycGxlKSIgc3Ryb2tlPSIjQzVBOEUwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjM4MCIgeT0iMzY0IiBjbGFzcz0idHRsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7inKggZ2VuZXJhdGVLZXl3b3Jkc0Zyb21DdiDigJQgR3JvcSBBSTwvdGV4dD4KICA8dGV4dCB4PSIzODAiIHk9IjM4MiIgY2xhc3M9ImRlc2MiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk4ga2V5d29yZHMgwrcgd3JpdGVLZXl3b3Jkc1RvUHJvcGVydGllc0ZpbGUgwrcgc2VsZi11cGRhdGVzIGNvbmZpZzwvdGV4dD4KICA8cGF0aCBkPSJNMzgwIDM5NiBMMzgwIDQxNiIgY2xhc3M9ImFyciIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KCiAgPHRleHQgeD0iNTAiIHk9IjQ0NCIgY2xhc3M9ImxibCI+TE9DQVRJT048L3RleHQ+CiAgPHJlY3QgeD0iMTYwIiB5PSI0MjAiIHdpZHRoPSI0NDAiIGhlaWdodD0iNTYiIHJ4PSIxNCIgZmlsbD0idXJsKCNnR3JlZW4pIiBzdHJva2U9IiM5REQ5QjYiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMzgwIiB5PSI0NDQiIGNsYXNzPSJ0dGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfjI0gQXBwQ29uZmlnIOKAlCBsb2NhdGlvbiBwcm9maWxlIGxvYWRlcjwvdGV4dD4KICA8dGV4dCB4PSIzODAiIHk9IjQ2MiIgY2xhc3M9ImRlc2MiIHRleHQtYW5jaG9yPSJtaWRkbGUiPm11bHRpcGxlIGNvdW50cmllcyDCtyBwZXItY2l0eSBhcHBsaWNhdGlvbi5wcm9wZXJ0aWVzIMK3IGVhc3lfYXBwbHkgb3ZlcnJpZGU8L3RleHQ+CiAgPHBhdGggZD0iTTM4MCA0NzYgTDM4MCA0OTYiIGNsYXNzPSJhcnIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CgogIDx0ZXh0IHg9IjUwIiB5PSI1MjQiIGNsYXNzPSJsYmwiPlNFQVJDSDwvdGV4dD4KICA8cmVjdCB4PSIxNjAiIHk9IjUwMCIgd2lkdGg9IjQ0MCIgaGVpZ2h0PSI1NiIgcng9IjE0IiBmaWxsPSJ1cmwoI2dHcmVlbikiIHN0cm9rZT0iIzlERDlCNiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIzODAiIHk9IjUyNCIgY2xhc3M9InR0bCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+UjSBKb2JTZWFyY2hBZ2VudCDigJQgU2VsZW5pdW0gNC4xOCArIFdlYkRyaXZlck1hbmFnZXI8L3RleHQ+CiAgPHRleHQgeD0iMzgwIiB5PSI1NDIiIGNsYXNzPSJkZXNjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5sb2dpbiDCtyBidWlsZFNlYXJjaFVybCDCtyBOZXh0IGJ1dHRvbiBsb29wIMK3IGdsb2JhbFNlZW5Kb2JzIGRlZHVwPC90ZXh0PgogIDxwYXRoIGQ9Ik0zODAgNTU2IEwzODAgNTc2IiBjbGFzcz0iYXJyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgoKICA8dGV4dCB4PSI1MCIgeT0iNjA0IiBjbGFzcz0ibGJsIj5TQ09SSU5HPC90ZXh0PgogIDxyZWN0IHg9IjE2MCIgeT0iNTgwIiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjU2IiByeD0iMTQiIGZpbGw9InVybCgjZ0JsdWUpIiBzdHJva2U9IiM5REM0RTgiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMzgwIiB5PSI2MDQiIGNsYXNzPSJ0dGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuKaoSBMbG1DbGllbnQg4oCUIEFJIG1hdGNoIHNjb3Jpbmc8L3RleHQ+CiAgPHRleHQgeD0iMzgwIiB5PSI2MjIiIGNsYXNzPSJkZXNjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Hcm9xIHByaW1hcnkgwrcgR2VtaW5pIDIuMCBmYWlsb3ZlciDCtyBMTSBTdHVkaW8gbG9jYWwgwrcgT2tIdHRwIDQuMTI8L3RleHQ+CiAgPHBhdGggZD0iTTM4MCA2MzYgTDM4MCA2NTYiIGNsYXNzPSJhcnIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CgogIDxyZWN0IHg9IjE2MCIgeT0iNjYwIiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjU2IiByeD0iMTQiIGZpbGw9InVybCgjZ0JsdWUpIiBzdHJva2U9IiM5REM0RTgiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMzgwIiB5PSI2ODQiIGNsYXNzPSJ0dGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCflJEgTGxtQXBpS2V5TWFuYWdlciDigJQga2V5IHJvdGF0aW9uICsgcHJvdmlkZXIgc3dpdGNoPC90ZXh0PgogIDx0ZXh0IHg9IjM4MCIgeT0iNzAyIiBjbGFzcz0iZGVzYyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SFRUUCA0Mjkg4oaSIHJvdGF0ZSBrZXkgwrcgYWxsIGV4aGF1c3RlZCDihpIgYXV0by1zd2l0Y2ggcHJvdmlkZXI8L3RleHQ+CiAgPHBhdGggZD0iTTM4MCA3MTYgTDM4MCA3MzYiIGNsYXNzPSJhcnIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CgogIDx0ZXh0IHg9IjUwIiB5PSI3NjQiIGNsYXNzPSJsYmwiPlRIUkVTSE9MRDwvdGV4dD4KICA8cmVjdCB4PSIxNjAiIHk9Ijc0MCIgd2lkdGg9IjQ0MCIgaGVpZ2h0PSI1NiIgcng9IjE0IiBmaWxsPSIjRkZGOEVFIiBzdHJva2U9IiNFOEIyN0EiIHN0cm9rZS13aWR0aD0iMS44IiBzdHJva2UtZGFzaGFycmF5PSI1IDQiLz4KICA8dGV4dCB4PSIzODAiIHk9Ijc2NCIgY2xhc3M9InR0bCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+OryBTY29yZSDiiaUgTUFUQ0hfVEhSRVNIT0xEPyAoZGVmYXVsdCA5MCUpPC90ZXh0PgogIDx0ZXh0IHg9IjM4MCIgeT0iNzgyIiBjbGFzcz0iZGVzYyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+YmVsb3cgdGhyZXNob2xkIOKGkiBza2lwIGpvYiBlbnRpcmVseTwvdGV4dD4KICA8cGF0aCBkPSJNMzgwIDc5NiBMMzgwIDgxNiIgY2xhc3M9ImFyciIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8cGF0aCBkPSJNNjAwIDc2OCBRNjgwIDc2OCA2ODAgNTQwIFE2ODAgNTI4IDYxMiA1MjgiIGNsYXNzPSJhcnItZGFzaCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8dGV4dCB4PSI2NTAiIHk9IjU1MiIgY2xhc3M9ImRlc2MiIGZpbGw9IiM4QTc3NjIiPnNraXA8L3RleHQ+CgogIDx0ZXh0IHg9IjUwIiB5PSI4NDQiIGNsYXNzPSJsYmwiPkRFQ0lTSU9OPC90ZXh0PgogIDxyZWN0IHg9IjE2MCIgeT0iODIwIiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjU2IiByeD0iMTQiIGZpbGw9IiNGRkY4RUUiIHN0cm9rZT0iI0U4QjI3QSIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1kYXNoYXJyYXk9IjUgNCIvPgogIDx0ZXh0IHg9IjM4MCIgeT0iODQ0IiBjbGFzcz0idHRsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5ax77iPIEVhc3kgQXBwbHkgYnV0dG9uIGRldGVjdGVkPzwvdGV4dD4KICA8dGV4dCB4PSIzODAiIHk9Ijg2MiIgY2xhc3M9ImRlc2MiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNTUyBzZWxlY3RvciDCtyBlYXN5QXBwbHlGaWx0ZXIgZmxhZyDCtyBKb2JBcHBseUFnZW50PC90ZXh0PgoKICA8cGF0aCBkPSJNMjYwIDg3NiBMMjYwIDkwNiIgY2xhc3M9ImFyciIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8dGV4dCB4PSIyNDAiIHk9IjkwMCIgY2xhc3M9InluIiBmaWxsPSIjM0ZBNTcyIj5ZRVM8L3RleHQ+CiAgPHBhdGggZD0iTTUwMCA4NzYgTDUwMCA5MDYiIGNsYXNzPSJhcnIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPHRleHQgeD0iNTEwIiB5PSI5MDAiIGNsYXNzPSJ5biIgZmlsbD0iI0UwN0EyQiI+Tk88L3RleHQ+CgogIDx0ZXh0IHg9IjUwIiB5PSI5MzQiIGNsYXNzPSJsYmwiPlBBVEg8L3RleHQ+CiAgPHJlY3QgeD0iNDAiIHk9IjkxMCIgd2lkdGg9IjM4MCIgaGVpZ2h0PSI1NiIgcng9IjE0IiBmaWxsPSJ1cmwoI2dHcmVlbikiIHN0cm9rZT0iIzlERDlCNiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIyMzAiIHk9IjkzNCIgY2xhc3M9InR0bCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+4pyP77iPIEVhc3kgQXBwbHkgbW9kYWwgZmlsbDwvdGV4dD4KICA8dGV4dCB4PSIyMzAiIHk9Ijk1MiIgY2xhc3M9ImRlc2MiIHRleHQtYW5jaG9yPSJtaWRkbGUiPmFuc3dlciBmaWxlIOKGkiBDViBmaWVsZHMg4oaSIEdyb3EgQUk8L3RleHQ+CiAgPHBhdGggZD0iTTIzMCA5NjYgTDIzMCA5ODYiIGNsYXNzPSJhcnIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CgogIDxyZWN0IHg9IjQ0MCIgeT0iOTEwIiB3aWR0aD0iMjcwIiBoZWlnaHQ9IjU2IiByeD0iMTQiIGZpbGw9InVybCgjZ1BlYWNoKSIgc3Ryb2tlPSIjRjBCODlBIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjU3NSIgeT0iOTM0IiBjbGFzcz0idHRsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5qpIEZsYWcgZm9yIG1hbnVhbCBhcHBseTwvdGV4dD4KICA8dGV4dCB4PSI1NzUiIHk9Ijk1MiIgY2xhc3M9ImRlc2MiIHRleHQtYW5jaG9yPSJtaWRkbGUiPmxvY2F0aW9uX2FwcGx5X2xpbmtzLnR4dDwvdGV4dD4KCiAgPHJlY3QgeD0iNDAiIHk9Ijk5MCIgd2lkdGg9IjM4MCIgaGVpZ2h0PSI1MCIgcng9IjE0IiBmaWxsPSJ1cmwoI2dHcmVlbikiIHN0cm9rZT0iIzlERDlCNiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIyMzAiIHk9IjEwMTEiIGNsYXNzPSJ0dGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuKaoSBwYWdlQWlDYWNoZSBwZXIgbW9kYWwgc3RlcDwvdGV4dD4KICA8dGV4dCB4PSIyMzAiIHk9IjEwMjciIGNsYXNzPSJkZXNjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5jYWNoZXMgQUkgYW5zd2VycyDCtyBubyBkdXBsaWNhdGUgY2FsbHM8L3RleHQ+CiAgPHBhdGggZD0iTTIzMCAxMDQwIEwyMzAgMTA2MCIgY2xhc3M9ImFyciIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KCiAgPHJlY3QgeD0iNDAiIHk9IjEwNjQiIHdpZHRoPSIzODAiIGhlaWdodD0iNTAiIHJ4PSIxNCIgZmlsbD0idXJsKCNnR3JlZW4pIiBzdHJva2U9IiM5REQ5QjYiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMjMwIiB5PSIxMDg1IiBjbGFzcz0idHRsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5SBIERlZmVycmVkIG5hdmlnYXRpb24gZmx1c2g8L3RleHQ+CiAgPHRleHQgeD0iMjMwIiB5PSIxMTAxIiBjbGFzcz0iZGVzYyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+cXVldWUgcGVyIHBhZ2UgwrcgcmVzdG9yZSBzZWFyY2ggVVJMIGFmdGVyPC90ZXh0PgogIDxwYXRoIGQ9Ik0yMzAgMTExNCBMMjMwIDExMzQiIGNsYXNzPSJhcnIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CgogIDxyZWN0IHg9IjQwIiB5PSIxMTM4IiB3aWR0aD0iMzgwIiBoZWlnaHQ9IjUwIiByeD0iMTQiIGZpbGw9InVybCgjZ0dyZWVuKSIgc3Ryb2tlPSIjOUREOUI2IiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjIzMCIgeT0iMTE1OSIgY2xhc3M9InR0bCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+TnSBTdWJtaXQgKyBsb2cgYXBwbGllZF9qb2JzLmxvZzwvdGV4dD4KICA8dGV4dCB4PSIyMzAiIHk9IjExNzUiIGNsYXNzPSJkZXNjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5hcHBsaWVkSWRzIFNldCDCtyBTaGFyZWRGaWxlV3JpdGVyPC90ZXh0PgoKICA8cGF0aCBkPSJNMjMwIDExODggTDIzMCAxMjE2IEwzODAgMTIxNiBMMzgwIDEyNDAiIGNsYXNzPSJhcnIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPHBhdGggZD0iTTU3NSA5NjYgTDU3NSAxMjE2IEwzODAgMTIxNiIgY2xhc3M9ImFyciIvPgoKICA8dGV4dCB4PSI1MCIgeT0iMTI2OCIgY2xhc3M9ImxibCI+T1VUUkVBQ0g8L3RleHQ+CiAgPHJlY3QgeD0iMTYwIiB5PSIxMjQ0IiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjU2IiByeD0iMTQiIGZpbGw9InVybCgjZ1BpbmspIiBzdHJva2U9IiNFRkE4QzciIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMzgwIiB5PSIxMjY4IiBjbGFzcz0idHRsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5KMIEVtYWlsRHJhZnRpbmdBZ2VudCDigJQgR3JvcSBBSTwvdGV4dD4KICA8dGV4dCB4PSIzODAiIHk9IjEyODYiIGNsYXNzPSJkZXNjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5qb2IgZGVzYyArIENWIOKGkiBwZXJzb25hbGlzZWQgc3ViamVjdCArIGJvZHkgwrcgcGVyIGhpZ2gtbWF0Y2ggcm9sZTwvdGV4dD4KICA8cGF0aCBkPSJNMzgwIDEzMDAgTDM4MCAxMzIwIiBjbGFzcz0iYXJyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgoKICA8cmVjdCB4PSIxNjAiIHk9IjEzMjQiIHdpZHRoPSI0NDAiIGhlaWdodD0iNTYiIHJ4PSIxNCIgZmlsbD0idXJsKCNnUGluaykiIHN0cm9rZT0iI0VGQThDNyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIzODAiIHk9IjEzNDgiIGNsYXNzPSJ0dGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfk6ggRW1haWxTZW5kZXJBZ2VudCDigJQgSmFrYXJ0YSBNYWlsIDIuMDwvdGV4dD4KICA8dGV4dCB4PSIzODAiIHk9IjEzNjYiIGNsYXNzPSJkZXNjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HbWFpbCBTTVRQIMK3IEFwcCBQYXNzd29yZCDCtyBDViBQREYgYXR0YWNoZWQgwrcgQXBwRXZlbnRCdXMgYXN5bmM8L3RleHQ+CiAgPHBhdGggZD0iTTM4MCAxMzgwIEwzODAgMTQwMCIgY2xhc3M9ImFyciIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KCiAgPHJlY3QgeD0iMTYwIiB5PSIxNDA0IiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjUwIiByeD0iMTQiIGZpbGw9IiNGNEVDREQiIHN0cm9rZT0iI0Q5QzM5RSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIzODAiIHk9IjE0MjUiIGNsYXNzPSJ0dGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfm6HvuI8gRGVkdXAgZ3VhcmQg4oCUIGhyX2VtYWlsZWQubG9nPC90ZXh0PgogIDx0ZXh0IHg9IjM4MCIgeT0iMTQ0MSIgY2xhc3M9ImRlc2MiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNvbmN1cnJlbnRIYXNoTWFwIHNlbnRDYWNoZSDCtyBza2lwIGlmIGFscmVhZHkgc2VudDwvdGV4dD4KICA8cGF0aCBkPSJNMzgwIDE0NTQgTDM4MCAxNDc0IiBjbGFzcz0iYXJyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgoKICA8dGV4dCB4PSI1MCIgeT0iMTUwMiIgY2xhc3M9ImxibCI+Tk9USUZZPC90ZXh0PgogIDxyZWN0IHg9IjE2MCIgeT0iMTQ3OCIgd2lkdGg9IjQ0MCIgaGVpZ2h0PSI1NiIgcng9IjE0IiBmaWxsPSJ1cmwoI2dZZWxsb3cpIiBzdHJva2U9IiNFOEM3NDIiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMzgwIiB5PSIxNTAyIiBjbGFzcz0idHRsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5OxIFdoYXRzQXBwTm90aWZpZXIg4oCUIFR3aWxpbyBXaGF0c0FwcCBBUEk8L3RleHQ+CiAgPHRleHQgeD0iMzgwIiB5PSIxNTIwIiBjbGFzcz0iZGVzYyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+T2tIdHRwIMK3IGNodW5rZWQgMTUwMCBjaGFycyDCtyBQYXJ0IDEvTiDCtyA5MHMgZGFlbW9uIGRlYWRsaW5lPC90ZXh0PgogIDxwYXRoIGQ9Ik0zODAgMTUzNCBMMzgwIDE1NTQiIGNsYXNzPSJhcnIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CgogIDxyZWN0IHg9IjE2MCIgeT0iMTU1OCIgd2lkdGg9IjQ0MCIgaGVpZ2h0PSI1MCIgcng9IjE0IiBmaWxsPSJ1cmwoI2dZZWxsb3cpIiBzdHJva2U9IiNFOEM3NDIiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMzgwIiB5PSIxNTc5IiBjbGFzcz0idHRsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5SUIEFwcEV2ZW50QnVzIOKAlCBXaGF0c0FwcFN1bW1hcnlFdmVudDwvdGV4dD4KICA8dGV4dCB4PSIzODAiIHk9IjE1OTUiIGNsYXNzPSJkZXNjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5hc3luYyBwdWItc3ViIMK3IGZpcmUtYW5kLWZvcmdldCDCtyBub24tYmxvY2tpbmc8L3RleHQ+CiAgPHBhdGggZD0iTTM4MCAxNjA4IEwzODAgMTYyOCIgY2xhc3M9ImFyciIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KCiAgPHRleHQgeD0iNTAiIHk9IjE2NTYiIGNsYXNzPSJsYmwiPk9VVFBVVFM8L3RleHQ+CiAgPHJlY3QgeD0iMTYwIiB5PSIxNjMyIiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjU2IiByeD0iMTQiIGZpbGw9IiNGNEVDREQiIHN0cm9rZT0iI0Q5QzM5RSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIzODAiIHk9IjE2NTYiIGNsYXNzPSJ0dGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfk4IgUnVuIG91dHB1dHMgd3JpdHRlbjwvdGV4dD4KICA8dGV4dCB4PSIzODAiIHk9IjE2NzQiIGNsYXNzPSJkZXNjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5hcHBsaWVkX2pvYnMubG9nIMK3IGxvY2F0aW9uX2FwcGx5X2xpbmtzLnR4dCDCtyBocl9lbWFpbGVkLmxvZyDCtyBhZ2VudC5sb2c8L3RleHQ+CiAgPHBhdGggZD0iTTM4MCAxNjg4IEwzODAgMTcwOCIgY2xhc3M9ImFyciIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KCiAgPHJlY3QgeD0iMTYwIiB5PSIxNzEyIiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjU2IiByeD0iMTQiIGZpbGw9IiNGNEVDREQiIHN0cm9rZT0iI0Q5QzM5RSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIzODAiIHk9IjE3MzYiIGNsYXNzPSJ0dGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCflIQgTmV4dCBsb2NhdGlvbiBvciBleGl0PC90ZXh0PgogIDx0ZXh0IHg9IjM4MCIgeT0iMTc1NCIgY2xhc3M9ImRlc2MiIHRleHQtYW5jaG9yPSJtaWRkbGUiPnN3aXRjaExvY2F0aW9uUHJvZmlsZSDCtyByZXNldCBrZXl3b3JkcyDCtyByZXBlYXQgZnJvbSBTRUFSQ0g8L3RleHQ+CiAgPHBhdGggZD0iTTE2MCAxNzQwIFE2MCAxNzQwIDYwIDUyNCBRNjAgNTEwIDE2MCA1MTAiIGNsYXNzPSJhcnItZGFzaCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8dGV4dCB4PSIyMCIgeT0iMTEwMCIgY2xhc3M9ImRlc2MiIGZpbGw9IiM4QTc3NjIiIHRyYW5zZm9ybT0icm90YXRlKC05MCAyMCAxMTAwKSI+bmV4dCBjaXR5PC90ZXh0PgoKICA8cGF0aCBkPSJNMzgwIDE3NjggTDM4MCAxNzg4IiBjbGFzcz0iYXJyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgoKICA8cmVjdCB4PSIxNjAiIHk9IjE3OTIiIHdpZHRoPSI0NDAiIGhlaWdodD0iNTAiIHJ4PSIxNCIgZmlsbD0iIzJBMUYxNCIgc3Ryb2tlPSIjMkExRjE0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjM4MCIgeT0iMTgxNCIgY2xhc3M9InR0bCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI0ZGRjhFRSI+8J+PgSBBbGwgbG9jYXRpb25zIGRvbmUg4oCUIHNodXRkb3duPC90ZXh0PgogIDx0ZXh0IHg9IjM4MCIgeT0iMTgzMCIgY2xhc3M9ImRlc2MiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNEOUMzOUUiPnN3ZWV0IGRyZWFtcywgYWdlbnQg8J+SpDwvdGV4dD4KCiAgPHRleHQgeD0iMzgwIiB5PSIxODgwIiBjbGFzcz0iZGVzYyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI0I1QTM4QyI+TGlua2VkSW4gSm9iIEFnZW50IOKAlCBGdW5jdGlvbmFsIEZsb3cgwrcgYnVpbHQgYnkgbWUg8J+SmzwvdGV4dD4KPC9zdmc+Cg==" alt="LinkedIn Job Agent flow diagram" class="flow-img" loading="lazy"/>
+      </div>
+      <div class="flow-legend">
+        <span><i class="dot" style="background:#FFD9A8"></i>Trigger / Build</span>
+        <span><i class="dot" style="background:#DCC3F0"></i>CV + Self-config</span>
+        <span><i class="dot" style="background:#B7EBC9"></i>Search + Apply</span>
+        <span><i class="dot" style="background:#BEDDF5"></i>AI Scoring</span>
+        <span><i class="dot" style="background:#F5C0D6"></i>Recruiter outreach</span>
+        <span><i class="dot" style="background:#FFE38A"></i>WhatsApp ping</span>
+      </div>
+    </div>
+
+    <div class="contact-cta">
+      <div class="contact-cta-title">Curious about the build? Let's chat 💬</div>
+      <div class="contact-cta-sub">The repo's private — but I'd love to walk you through it personally.</div>
+      <div class="contact-cta-btns">
+        <a class="cc-btn primary" href="mailto:spa23111992@gmail.com">📧 spa23111992@gmail.com</a>
+        <a class="cc-btn primary" href="tel:+919995667550">📞 +91 99956 67550</a>
+        <a class="cc-btn outline" href="https://www.linkedin.com/in/sumith-ajith-8b9959134/" target="_blank">🔗 LinkedIn</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAPTER: STEPS -->
+  <div class="chapter-marker" data-chapter="Step by Step">
+    <div class="chapter-line"></div>
+    <div class="chapter-dot"></div>
+    <div class="chapter-label">Step by Step</div>
+    <div class="chapter-dot"></div>
+    <div class="chapter-line"></div>
+  </div>
+
+  <div data-chapter="7 Steps">
+    <div class="section-eyebrow">Under the hood</div>
+    <div class="section-title">7 steps. Zero manual effort. ✨</div>
+    <p class="section-sub">Scroll through and each card will highlight as you reach it — and read itself out loud automatically. Or hit the button to hear all 7 at once!</p>
+
+    <div class="steps-intro">
+      <div class="steps-intro-icon">⚙️</div>
+      <div class="steps-intro-text">
+        <strong>Tap any card</strong> to expand it and hear it read aloud. Cards also <strong>auto-highlight as you scroll</strong> past them — and clicking the speak button on each one reads just that step. 🔊
+      </div>
+    </div>
+
+    <button class="read-btn" onclick="readAllSteps()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      🔊 Read all 7 steps aloud
+    </button>
+
+    <div class="steps-grid">
+
+      <div class="step-card s-amber" data-step="1"
+        data-speak="Step one — CV Reading and Self-Configuration. I'm using Apache PDFBox to grab all the text out of my CV PDF. Then I send that over to Groq AI and Google Gemini, and they parse my profile — skills, seniority, target roles. The part I love most? After that, the agent generates the best LinkedIn search keywords for me, and writes them straight back into its own config file. So my agent literally rewrites its own brain before every single run. No hardcoding. No manual tuning. Just AI doing what AI does best.">
+        <div class="step-head">
+          <div class="step-emoji">⚙️</div>
+          <div style="flex:1"><div class="step-num-badge">STEP 01 / 07</div><div class="step-title">CV Reading &amp; Self-Configuration</div></div>
+          <div class="step-actions">
+            <button class="step-speak-btn" onclick="speakCard(event, this)">🔊 Read</button>
+            <div class="step-chevron">▼</div>
+          </div>
+        </div>
+        <div class="step-body"><div class="step-body-inner">
+          <p class="step-desc">Apache PDFBox grabs my CV. Groq (Llama 3.3-70B) and Google Gemini parse it into a structured profile — skills, seniority, experience, target roles. Then the agent generates fresh keywords and writes them right back into its own config file.</p>
+          <div class="step-funny">🧠 The agent literally rewrites its own brain before every run. No hardcoding. No manual tuning. Just AI doing what AI does best — figuring stuff out so you don't have to.</div>
+          <div class="step-tech-row">
+            <span class="stech">Apache PDFBox 3.0</span><span class="stech">Groq Llama 3.3-70B</span><span class="stech">Google Gemini</span><span class="stech">writeKeywordsToPropertiesFile()</span>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="step-card s-green" data-step="2"
+        data-speak="Step two — Multi-Country Job Hunt. Big shoutout to LinkedIn — such a great platform. Selenium fires up and searches across multiple countries simultaneously. Each city gets its own isolated profile with full deduplication. The same job showing up under two different keywords? No problem — it only gets processed once. My agent doesn't sleep. But I sure do.">
+        <div class="step-head">
+          <div class="step-emoji">🌍</div>
+          <div style="flex:1"><div class="step-num-badge">STEP 02 / 07</div><div class="step-title">Multi-Country Job Hunt on LinkedIn</div></div>
+          <div class="step-actions">
+            <button class="step-speak-btn" onclick="speakCard(event, this)">🔊 Read</button>
+            <div class="step-chevron">▼</div>
+          </div>
+        </div>
+        <div class="step-body"><div class="step-body-inner">
+          <p class="step-desc">Big shoutout to LinkedIn 🙏 Selenium fires up and searches across multiple countries simultaneously. Each city has its own isolated profile with full deduplication, so jobs never get processed twice.</p>
+          <div class="step-funny">🌏 Multiple cities, one nightly run. The agent doesn't sleep — but I sure do 😴. It handles the global hunt while I dream about being hired.</div>
+          <div class="step-tech-row">
+            <span class="stech">Selenium 4.18</span><span class="stech">WebDriverManager 5.7</span><span class="stech">Multi-city profiles</span><span class="stech">globalSeenJobs dedup</span>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="step-card s-blue" data-step="3"
+        data-speak="Step three — AI Match Scoring, and honestly my favorite part. Every job gets scored against my CV using a multi-provider LLM chain. Groq AI is primary, Google Gemini 2.0 is my failover, and LM Studio runs locally with Phi-4-mini for zero-cost private scoring. Oh, and sorry Groq and Gemini — I found a workaround for your rate limits! Keys auto-rotate, providers auto-switch, and the agent just keeps going. Only jobs scoring 90 percent or higher make the cut.">
+        <div class="step-head">
+          <div class="step-emoji">🧠</div>
+          <div style="flex:1"><div class="step-num-badge">STEP 03 / 07</div><div class="step-title">AI Match Scoring</div></div>
+          <div class="step-actions">
+            <button class="step-speak-btn" onclick="speakCard(event, this)">🔊 Read</button>
+            <div class="step-chevron">▼</div>
+          </div>
+        </div>
+        <div class="step-body"><div class="step-body-inner">
+          <p class="step-desc">Every job gets scored against my CV using a multi-provider LLM chain — Groq AI as primary, Google Gemini 2.0 as the trusty failover, and LM Studio (Phi-4-mini / Qwen 2.5) running locally for zero-cost backup. Keys auto-rotate, providers auto-switch. Only jobs scoring ≥ 90% make the cut.</p>
+          <div class="step-funny">😜 Sorry Groq AI and sorry Google Gemini — I sort of found a workaround for your rate limits! Keys rotate, providers switch, and the agent just keeps humming along. No stopping. No tears.</div>
+          <div class="step-tech-row">
+            <span class="stech">Groq AI (primary)</span><span class="stech">Gemini 2.0 (failover)</span><span class="stech">LM Studio local</span><span class="stech">LlmApiKeyManager</span><span class="stech">OkHttp 4.12</span>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="step-card s-purple" data-step="4"
+        data-speak="Step four — Auto-Apply or Flag for You. Two paths here. If Easy Apply is available, Selenium fills every field in order — answer file first, then CV data, then Groq AI for anything unknown — and hits submit. If there's no Easy Apply, the URL gets saved to a text file for me to handle later. Nothing ever gets silently dropped. Every high-match job either gets applied to automatically, or flagged for manual review.">
+        <div class="step-head">
+          <div class="step-emoji">🖱️</div>
+          <div style="flex:1"><div class="step-num-badge">STEP 04 / 07</div><div class="step-title">Auto-Apply or Flag for You</div></div>
+          <div class="step-actions">
+            <button class="step-speak-btn" onclick="speakCard(event, this)">🔊 Read</button>
+            <div class="step-chevron">▼</div>
+          </div>
+        </div>
+        <div class="step-body"><div class="step-body-inner">
+          <p class="step-desc">Easy Apply available? The framework fills every field — answer files, CV data, and Groq AI for anything unknown — then hits submit. No Easy Apply? The link gets saved for manual handling. Nothing ever gets silently dropped. Every job is accounted for.</p>
+          <div class="step-funny">📋 Answer file → CV fields → Groq AI for the unknowns. The modal doesn't stand a chance. It's like having a very determined intern who never sleeps and never complains about paperwork.</div>
+          <div class="step-tech-row">
+            <span class="stech">EasyApplyAnswerLoader</span><span class="stech">CvParser</span><span class="stech">pageAiCache</span><span class="stech">deferred navigation</span>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="step-card s-pink" data-step="5"
+        data-speak="Step five — Recruiter Outreach. For every high-match role, Groq AI drafts a personalized cold email — subject line, body, everything — tailored to that specific job and company. Jakarta Mail sends it via Gmail SMTP with my CV attached as a PDF. And I built a dedup tracker so no recruiter ever gets contacted twice. Because nobody likes getting the same email twice, especially recruiters.">
+        <div class="step-head">
+          <div class="step-emoji">💌</div>
+          <div style="flex:1"><div class="step-num-badge">STEP 05 / 07</div><div class="step-title">Recruiter Outreach</div></div>
+          <div class="step-actions">
+            <button class="step-speak-btn" onclick="speakCard(event, this)">🔊 Read</button>
+            <div class="step-chevron">▼</div>
+          </div>
+        </div>
+        <div class="step-body"><div class="step-body-inner">
+          <p class="step-desc">Groq AI drafts a personalized cold email per match — subject + body tailored to the specific role and company. Jakarta Mail 2.0 sends via Gmail SMTP with my CV attached. Dedup tracker keeps things polite — no recruiter ever gets the same email twice.</p>
+          <div class="step-funny">✉️ Personalized. Relevant. CV attached. Sent at 2 AM while I'm sleeping. A recruiter gets a thoughtful email, no idea it was crafted by an AI on a Linux container in the cloud 😄</div>
+          <div class="step-tech-row">
+            <span class="stech">Groq AI drafting</span><span class="stech">Jakarta Mail 2.0</span><span class="stech">Gmail SMTP</span><span class="stech">hr_emailed.log dedup</span>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="step-card s-teal" data-step="6"
+        data-speak="Step six — WhatsApp Summary via Twilio. Once everything finishes, Twilio's WhatsApp API fires a run summary to my phone. I built the notifier to split output into numbered chunks — Part 1 of 4, Part 2 of 4 — so nothing ever gets cut off. Runs on a daemon background thread so the main pipeline never has to wait. I wake up, check WhatsApp, and boom — I know exactly what got applied, what needs manual attention, and what emails went out. Best morning routine ever.">
+        <div class="step-head">
+          <div class="step-emoji">📱</div>
+          <div style="flex:1"><div class="step-num-badge">STEP 06 / 07</div><div class="step-title">WhatsApp Summary via Twilio</div></div>
+          <div class="step-actions">
+            <button class="step-speak-btn" onclick="speakCard(event, this)">🔊 Read</button>
+            <div class="step-chevron">▼</div>
+          </div>
+        </div>
+        <div class="step-body"><div class="step-body-inner">
+          <p class="step-desc">Twilio WhatsApp API pushes a run summary straight to my phone the moment it finishes. Wake up knowing exactly what went down overnight — applied, flagged, emailed — without opening a single dashboard.</p>
+          <div class="step-funny">📱 Chunked at 1500 chars so Twilio never cuts anything off. Daemon thread so the pipeline never waits. My morning brief lands on WhatsApp before I've even made coffee ☕</div>
+          <div class="step-tech-row">
+            <span class="stech">Twilio WhatsApp API</span><span class="stech">OkHttp</span><span class="stech">AppEventBus async</span><span class="stech">daemon thread</span>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="step-card s-coral" data-step="7"
+        data-speak="And finally — step seven. The whole thing runs itself. Every. Single. Day. Scheduled GitHub Actions workflow at 1 AM UTC. Checks out the repo, sets up Java 17, pulls credentials from GitHub Secrets, builds the fat JAR with Maven Shade Plugin, fires up my agent, and shuts down when done. No laptop on. No me pressing anything. No monitoring. Just my agent, quietly doing its thing every night while the rest of the world is sleeping. That's the dream. That's literally why I built this.">
+        <div class="step-head">
+          <div class="step-emoji">🔄</div>
+          <div style="flex:1"><div class="step-num-badge">STEP 07 / 07</div><div class="step-title">Runs Itself Daily — GitHub Actions</div></div>
+          <div class="step-actions">
+            <button class="step-speak-btn" onclick="speakCard(event, this)">🔊 Read</button>
+            <div class="step-chevron">▼</div>
+          </div>
+        </div>
+        <div class="step-body"><div class="step-body-inner">
+          <p class="step-desc">Scheduled GitHub Actions workflow at 01:00 UTC. Credentials in GitHub Secrets. Builds, fires, shuts down. No laptop. No trigger. No monitoring. No me. The agent just shows up and does its thing.</p>
+          <div class="step-funny">🔄 Wakes up at 1 AM UTC, hunts globally, files reports, sends a WhatsApp, shuts itself down. I do exactly nothing. That's the whole point. That's been the point all along 🚀</div>
+          <div class="step-tech-row">
+            <span class="stech">GitHub Actions</span><span class="stech">Maven Shade Plugin</span><span class="stech">GitHub Secrets</span><span class="stech">cron 01:00 UTC</span>
+          </div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHAPTER: STATS -->
+  <div class="chapter-marker" data-chapter="By the Numbers">
+    <div class="chapter-line"></div>
+    <div class="chapter-dot"></div>
+    <div class="chapter-label">By the Numbers</div>
+    <div class="chapter-dot"></div>
+    <div class="chapter-line"></div>
+  </div>
+
+  <div data-chapter="Stats">
+    <div class="section-eyebrow">Impact</div>
+    <div class="section-title">What this little robot actually does 🤖</div>
+    <div class="stats-row">
+      <div class="stat-card"><span class="stat-val">🌍</span><span class="stat-label">Countries searched per run</span></div>
+      <div class="stat-card"><span class="stat-val">3</span><span class="stat-label">AI providers with auto-failover</span></div>
+      <div class="stat-card"><span class="stat-val">90%</span><span class="stat-label">Minimum match score to apply</span></div>
+      <div class="stat-card"><span class="stat-val">0</span><span class="stat-label">Minutes of daily manual work</span></div>
+      <div class="stat-card"><span class="stat-val">01:00</span><span class="stat-label">UTC — wakes nightly, every night</span></div>
+      <div class="stat-card"><span class="stat-val">∞</span><span class="stat-label">Patience (never complains!)</span></div>
+    </div>
+  </div>
+
+  <!-- CHAPTER: PHILOSOPHY -->
+  <div class="chapter-marker" data-chapter="The Real Lesson">
+    <div class="chapter-line"></div>
+    <div class="chapter-dot"></div>
+    <div class="chapter-label">The Real Lesson</div>
+    <div class="chapter-dot"></div>
+    <div class="chapter-line"></div>
+  </div>
+
+  <div data-chapter="Philosophy">
+    <div class="section-eyebrow">Takeaways</div>
+    <div class="section-title">Don't fear AI. Make friends with it. 🤝</div>
+    <p class="section-sub">Building this completely changed how I think about automation.</p>
+
+    <button class="read-btn" onclick="readPhilosophy()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      🔊 Read this section
+    </button>
+
+    <div class="philosophy-card">
+      <h3>"Don't use AI just to generate code.<br/>Use it to think through the problem with you." 💭</h3>
+      <div class="phil-point">
+        <div class="phil-icon">🧠</div>
+        <div class="phil-text"><strong>The code is the easy bit.</strong> The architecture, edge cases, the decisions — which locations matter, what threshold makes sense, when to auto-apply versus flag — that's where you and your brain still matter.</div>
+      </div>
+      <div class="phil-point">
+        <div class="phil-icon">🚀</div>
+        <div class="phil-text"><strong>AI doesn't replace you. It turbocharges you.</strong> I didn't use AI to write this pipeline for me. I used it as a thinking partner — to reason faster, catch edge cases earlier, and build something I couldn't have pulled off solo.</div>
+      </div>
+      <div class="phil-point">
+        <div class="phil-icon">🎯</div>
+        <div class="phil-text"><strong>Build the system. Set the direction. Let it run. ✨</strong> Stop thinking of yourself as "the person doing the task" and start thinking of yourself as "the person designing the system." Everything changes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAPTER: THANKS -->
+  <div class="chapter-marker" data-chapter="Thanks & Credits">
+    <div class="chapter-line"></div>
+    <div class="chapter-dot"></div>
+    <div class="chapter-label">Thanks & Credits</div>
+    <div class="chapter-dot"></div>
+    <div class="chapter-line"></div>
+  </div>
+
+  <div data-chapter="Acknowledgements">
+    <div class="section-eyebrow">Massive thanks</div>
+    <div class="section-title">All the tools that made this real 🙏</div>
+    <p class="thanks-intro">Each platform did something the others couldn't. Together they made something I could've never built alone. Thank you all. 💛</p>
+
+    <div class="thanks-grid">
+      <div class="thank-card"><div class="thank-icon">🔗</div><div><div class="thank-name">LinkedIn</div><div class="thank-desc">The platform powering the entire hunt. Without it, none of this exists.</div></div></div>
+      <div class="thank-card"><div class="thank-icon">⚡</div><div><div class="thank-name">Groq AI</div><div class="thank-desc">The brain. CV parsing, job scoring, email drafting — all on LPU-powered fast inference.</div></div></div>
+      <div class="thank-card"><div class="thank-icon">🌐</div><div><div class="thank-name">Google Gemini</div><div class="thank-desc">The reliable backup. Stepped in whenever Groq needed a breather. Sorry for the workaround! 😜</div></div></div>
+      <div class="thank-card"><div class="thank-icon">🖥️</div><div><div class="thank-name">LM Studio + Microsoft Phi-4</div><div class="thank-desc">Local, private, zero-cost scoring. No data leaves the machine.</div></div></div>
+      <div class="thank-card"><div class="thank-icon">🤖</div><div><div class="thank-name">Selenium</div><div class="thank-desc">The hands of the agent. Every click, form fill, pagination — 13 years in and it still surprises me.</div></div></div>
+      <div class="thank-card"><div class="thank-icon">📱</div><div><div class="thank-name">Twilio</div><div class="thank-desc">My morning WhatsApp briefing. Chunked, reliable, lands before I've properly woken up. ☕</div></div></div>
+      <div class="thank-card"><div class="thank-icon">🔄</div><div><div class="thank-name">GitHub Actions</div><div class="thank-desc">The orchestrator. Turns a script into a daily system. No laptop. No trigger. No me. ✨</div></div></div>
+      <div class="thank-card"><div class="thank-icon">🎭</div><div><div class="thank-name">Playwright (coming soon)</div><div class="thank-desc">TypeScript port is cooking 🤔. The next chapter of this journey.</div></div></div>
+    </div>
+  </div>
+
+  <div class="final-card">
+    <h2>"Still searching, still smiling 😊<br/>Let's see if this can hire its own creator!"</h2>
+    <p>Actively exploring AI Automation Architect, QA Architect and SDET Lead roles across Australia 🇦🇺, Luxembourg 🇱🇺, Ireland 🇮🇪 and Europe 🇪🇺. My agent might've already pinged you — feel free to skip the queue and say hi directly! 💛</p>
+    <div class="final-btns">
+      <a class="fb primary" href="mailto:spa23111992@gmail.com">📧 spa23111992@gmail.com</a>
+      <a class="fb outline" href="tel:+919995667550">📞 +91 99956 67550</a>
+      <a class="fb outline" href="https://www.linkedin.com/in/sumith-ajith-8b9959134/" target="_blank">👋 LinkedIn</a>
+    </div>
+    <p style="font-size:12px;color:rgba(255,248,238,.45);margin-top:20px;margin-bottom:0">🔒 The project repo is private — happy to walk you through it on a call!</p>
+  </div>
+
+  <div class="footer-quote">"Build the system. Set the direction. Let it run." 🚀</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════
+   SPEECH ENGINE
+═══════════════════════════════════════ */
+let currentSpeakStep = '';
+
+function getBestVoice() {
+  const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+  const preferred = ['Microsoft Andrew Online','Microsoft Brian Online','Microsoft Ryan Online','Microsoft Guy Online','Microsoft Andrew','Microsoft Brian','Microsoft Ryan','Google UK English Male','Alex','Aaron','Arthur'];
+  const maleRe = /\b(male|andrew|brian|ryan|guy|mark|daniel|alex|fred|tom|aaron|arthur|oliver|george)\b/i;
+  const femaleRe = /\b(female|samantha|aria|jenny|zira|hazel|susan|karen|moira|salli|joanna|kendra|emma|natasha|ava|fiona)\b/i;
+  for (const p of preferred) {
+    const v = voices.find(v => v.name.toLowerCase().includes(p.toLowerCase()));
+    if (v) return v;
+  }
+  return voices.find(v => maleRe.test(v.name) && !femaleRe.test(v.name)) || null;
+}
+
+function speakText(text, label) {
+  if (!window.speechSynthesis) return;
+  stopSpeech();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 1.08; // slightly faster than original
+  u.pitch = 1.04;
+  u.volume = 1;
+  u.pitch += (Math.random() - 0.5) * 0.04;
+  const v = getBestVoice();
+  if (v) u.voice = v;
+  const bar = document.getElementById('speak-bar');
+  const lbl = document.getElementById('speak-label');
+  const step = document.getElementById('speak-step');
+  u.onstart = () => {
+    lbl.textContent = label ? 'Playing: ' + label : 'Speaking...';
+    step.textContent = '';
+    bar.classList.add('visible');
+  };
+  u.onend = u.onerror = () => {
+    bar.classList.remove('visible');
+    document.querySelectorAll('.step-card.speaking').forEach(c => c.classList.remove('speaking'));
+  };
+  speechSynthesis.speak(u);
+}
+
+function stopSpeech() {
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  document.getElementById('speak-bar').classList.remove('visible');
+  document.querySelectorAll('.step-card.speaking').forEach(c => c.classList.remove('speaking'));
+}
+
+function speakCard(e, btn) {
+  e.stopPropagation();
+  const card = btn.closest('.step-card');
+  document.querySelectorAll('.step-card.speaking').forEach(c => c.classList.remove('speaking'));
+  card.classList.add('speaking');
+  const stepNum = card.dataset.step;
+  speakText(card.dataset.speak, 'Step ' + stepNum);
+}
+
+/* ═══════════════════════════════════════
+   STEP CARDS — TOGGLE + SCROLL-HIGHLIGHT
+═══════════════════════════════════════ */
+document.querySelectorAll('.step-card').forEach(card => {
+  card.addEventListener('click', function(e) {
+    if (e.target.classList.contains('step-speak-btn') || e.target.closest('.step-speak-btn')) return;
+    const wasOpen = card.classList.contains('open');
+    document.querySelectorAll('.step-card.open').forEach(c => c.classList.remove('open'));
+    if (!wasOpen) {
+      card.classList.add('open');
+      card.classList.add('speaking');
+      speakText(card.dataset.speak, 'Step ' + card.dataset.step);
+    } else {
+      stopSpeech();
+    }
+  });
+});
+
+/* ═══════════════════════════════════════
+   SCROLL DRIVEN BEHAVIOURS
+═══════════════════════════════════════ */
+const chapters = [
+  {el: document.querySelector('.hero-quote'), name: 'Introduction'},
+  {el: document.querySelector('[data-chapter="Pipeline Overview"]'), name: 'The Pipeline'},
+  {el: document.querySelector('[data-chapter="7 Steps"]'), name: 'Step by Step'},
+  {el: document.querySelector('[data-chapter="Stats"]'), name: 'By the Numbers'},
+  {el: document.querySelector('[data-chapter="Philosophy"]'), name: 'The Real Lesson'},
+  {el: document.querySelector('[data-chapter="Acknowledgements"]'), name: 'Thanks & Credits'},
+];
+
+function getScrollPct() {
+  const el = document.documentElement;
+  return Math.round((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100);
+}
+
+function getCurrentChapter() {
+  const scrollY = window.scrollY + 120;
+  let current = chapters[0]?.name || '';
+  for (const c of chapters) {
+    if (c.el && c.el.getBoundingClientRect().top + window.scrollY < scrollY) {
+      current = c.name;
+    }
+  }
+  return current;
+}
+
+// Intersection observers
+const fadeObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold: 0.06});
+
+document.querySelectorAll('.step-card, .stat-card, .chapter-marker').forEach((el, i) => {
+  if (el.classList.contains('step-card') || el.classList.contains('stat-card')) {
+    el.style.transitionDelay = (i % 6 * 0.06) + 's';
+  }
+  fadeObs.observe(el);
+});
+
+// Scroll-active step highlight
+const stepObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting && e.intersectionRatio > 0.4) {
+      document.querySelectorAll('.step-card.scroll-active').forEach(c => c.classList.remove('scroll-active'));
+      e.target.classList.add('scroll-active');
+    }
+  });
+}, {threshold: 0.4});
+
+document.querySelectorAll('.step-card').forEach(c => stepObs.observe(c));
+
+// Progress bar & chapter label
+window.addEventListener('scroll', () => {
+  const pct = getScrollPct();
+  document.getElementById('progress-bar').style.width = pct + '%';
+  const chapterEl = document.getElementById('progress-chapter');
+  const ch = getCurrentChapter();
+  if (chapterEl.textContent !== ch) {
+    chapterEl.style.opacity = '0';
+    setTimeout(() => { chapterEl.textContent = ch; chapterEl.style.opacity = '1'; chapterEl.style.transition = 'opacity .4s'; }, 200);
+  }
+}, {passive: true});
+
+/* ═══════════════════════════════════════
+   CURSOR TRAIL
+═══════════════════════════════════════ */
+const trails = [document.getElementById('ct1'), document.getElementById('ct2'), document.getElementById('ct3')];
+const trailPos = [{x:0,y:0},{x:0,y:0},{x:0,y:0}];
+let mouseX = 0, mouseY = 0;
+
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; trails.forEach(t => t.style.opacity = '0.6'); });
+document.addEventListener('mouseleave', () => trails.forEach(t => t.style.opacity = '0'));
+
+function animTrail() {
+  trailPos[0].x += (mouseX - trailPos[0].x) * 0.35;
+  trailPos[0].y += (mouseY - trailPos[0].y) * 0.35;
+  trailPos[1].x += (trailPos[0].x - trailPos[1].x) * 0.3;
+  trailPos[1].y += (trailPos[0].y - trailPos[1].y) * 0.3;
+  trailPos[2].x += (trailPos[1].x - trailPos[2].x) * 0.25;
+  trailPos[2].y += (trailPos[1].y - trailPos[2].y) * 0.25;
+  trails.forEach((t, i) => {
+    t.style.left = trailPos[i].x + 'px';
+    t.style.top = trailPos[i].y + 'px';
+    t.style.transform = `translate(-50%,-50%) scale(${1 - i * 0.25})`;
+    t.style.opacity = (0.6 - i * 0.18).toString();
+  });
+  requestAnimationFrame(animTrail);
+}
+animTrail();
+
+/* ═══════════════════════════════════════
+   10-SECOND COUNTDOWN
+═══════════════════════════════════════ */
+let countdownTimer = null;
+let countdownActive = true;
+const cdEl = document.getElementById('audio-countdown');
+const cdNum = document.getElementById('cd-num');
+const cdCircle = document.getElementById('cd-progress-circle');
+const circumference = 113;
+
+function startCountdown() {
+  let remaining = 10;
+  cdEl.classList.add('show');
+  updateCircle(remaining);
+
+  countdownTimer = setInterval(() => {
+    remaining--;
+    cdNum.textContent = remaining;
+    updateCircle(remaining);
+    if (remaining <= 0) {
+      clearInterval(countdownTimer);
+      dismissCountdown();
+      readFullTour();
+    }
+  }, 1000);
+}
+
+function updateCircle(remaining) {
+  const offset = circumference - (remaining / 10) * circumference;
+  cdCircle.style.strokeDashoffset = offset;
+}
+
+function startNow() {
+  clearInterval(countdownTimer);
+  dismissCountdown();
+  readFullTour();
+}
+
+function dismissCountdown() {
+  clearInterval(countdownTimer);
+  countdownActive = false;
+  cdEl.classList.remove('show');
+  cdEl.classList.add('hide');
+}
+
+// Start countdown after 2s page load
+setTimeout(startCountdown, 2000);
+
+// Also stop countdown if user interacts
+document.addEventListener('click', e => {
+  if (!e.target.closest('#audio-countdown') && countdownActive) {
+    dismissCountdown();
+  }
+}, {once: true});
+document.addEventListener('scroll', () => {
+  if (countdownActive) dismissCountdown();
+}, {once: true, passive: true});
+
+/* ═══════════════════════════════════════
+   BULK NARRATIONS
+═══════════════════════════════════════ */
+function readAllSteps() {
+  const stepsText = Array.from(document.querySelectorAll('.step-card'))
+    .map(c => c.dataset.speak).join(' ... ');
+  speakText(stepsText, 'All 7 Steps');
+}
+
+function readPhilosophy() {
+  const el = document.querySelector('[data-chapter="Philosophy"]');
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  speakText(`Here's the real lesson. Don't be scared of AI. Just make friends with it. It's here, it's not going anywhere, and honestly? It's pretty great when you use it right.
+Don't just use AI to spit out code for you. Use it to think through the problem with you. Because the code? That's the easy part. The hard part is the architecture, the edge cases, the decisions you have to make — and that's still where you matter.
+AI doesn't replace you. It turbocharges you. So build the system. Set the direction. Let it run. That's the whole game.`, 'Philosophy');
+}
+
+/* ═══════════════════════════════════════
+   VOICE-NAVIGATED GUIDED TOUR
+   Scrolls to each section as narration plays
+═══════════════════════════════════════ */
+let tourActive = false;
+let tourAborted = false;
+
+function speakSegment(text, label, scrollTarget) {
+  return new Promise(resolve => {
+    if (tourAborted) { resolve(); return; }
+    if (!window.speechSynthesis) { resolve(); return; }
+    if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const chapterEl = document.getElementById('progress-chapter');
+    if (chapterEl && label) {
+      chapterEl.style.opacity = '0';
+      setTimeout(() => {
+        chapterEl.textContent = label;
+        chapterEl.style.opacity = '1';
+        chapterEl.style.transition = 'opacity .4s';
+      }, 200);
+    }
+    setTimeout(() => {
+      if (tourAborted) { resolve(); return; }
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.08;
+      u.pitch = 1.04 + (Math.random() - 0.5) * 0.04;
+      u.volume = 1;
+      const v = getBestVoice();
+      if (v) u.voice = v;
+      const bar = document.getElementById('speak-bar');
+      const lbl = document.getElementById('speak-label');
+      const step = document.getElementById('speak-step');
+      lbl.textContent = label ? '\u25B6 ' + label : 'Speaking...';
+      step.textContent = '';
+      bar.classList.add('visible');
+      u.onend = () => resolve();
+      u.onerror = () => resolve();
+      speechSynthesis.speak(u);
+    }, 700);
+  });
+}
+
+function highlightCard(card) {
+  document.querySelectorAll('.step-card.speaking').forEach(c => c.classList.remove('speaking'));
+  if (card) {
+    card.classList.add('open');
+    card.classList.add('speaking');
+    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+  }
+}
+
+async function readFullTour() {
+  if (tourActive) { stopTour(); return; }
+  tourActive = true;
+  tourAborted = false;
+
+  const heroEl     = document.querySelector('.hero-quote');
+  const pipelineEl = document.querySelector('[data-chapter="Pipeline Overview"]');
+  const stepsEl    = document.querySelector('[data-chapter="7 Steps"]');
+  const statsEl    = document.querySelector('[data-chapter="Stats"]');
+  const philEl     = document.querySelector('[data-chapter="Philosophy"]');
+  const thanksEl   = document.querySelector('[data-chapter="Acknowledgements"]');
+  const finalEl    = document.querySelector('.final-card');
+  const stepCards  = document.querySelectorAll('.step-card');
+
+  await speakSegment(
+    `Hey, what's up! I'm Sumith — thirteen years in the automation space, currently working as an AI Automation Architect. Welcome to my LinkedIn Job Agent. Built by me, in my own time, purely for the love of building things.`,
+    'Introduction', heroEl
+  );
+  if (tourAborted) return cleanup();
+
+  await speakSegment(
+    `Here's the core idea. Automation should actually make YOUR life easier. Not just shuffle one manual chore into another. So I built a pipeline that does my entire job hunt while I sleep — searching multiple countries, applying to matched roles, emailing recruiters, and pinging my phone with a WhatsApp summary every morning. All on its own. Oh, and between you and me — I probably should've built this in Playwright with TypeScript. The browser control is just cleaner. That's my next project. But hey — Java got it done, and it runs beautifully.`,
+    'Introduction', heroEl
+  );
+  if (tourAborted) return cleanup();
+
+  await speakSegment(
+    `Let me walk you through the full pipeline. Every box you see here is a real piece of the system — from CV reading at the top, all the way to the daily WhatsApp ping at the bottom.`,
+    'The Pipeline', pipelineEl
+  );
+  if (tourAborted) return cleanup();
+
+  await speakSegment(
+    `Now let's go step by step. Seven steps. Zero manual effort.`,
+    'Step by Step', stepsEl
+  );
+  if (tourAborted) return cleanup();
+
+  const stepNarrations = [
+    `Step one — CV Reading and Self-Configuration. Apache PDFBox grabs the full text of my CV. Groq AI and Google Gemini parse it into a structured profile — skills, seniority, experience, target roles. Then the agent generates fresh keywords and writes them right back into its own config file. It literally rewrites its own brain before every single run. No hardcoding. No manual tuning.`,
+    `Step two — Multi-Country Job Hunt. Big shoutout to LinkedIn. Selenium fires up and searches across multiple countries simultaneously. Each city has its own isolated profile with full deduplication. The same job under two different keywords? Processed exactly once. My agent doesn't sleep. But I sure do.`,
+    `Step three — AI Match Scoring. Every job gets scored against my CV using a multi-provider LLM chain. Groq is primary. Gemini 2.0 is my failover. LM Studio runs locally for zero-cost private scoring. Keys auto-rotate, providers auto-switch, and the agent just keeps going. Only jobs scoring ninety percent or higher make the cut.`,
+    `Step four — Auto-Apply or Flag for You. Easy Apply available? Selenium fills every field in order — answer file first, CV data second, Groq AI for anything unknown — then hits submit. No Easy Apply? The URL is saved for me to handle manually. Nothing ever gets silently dropped.`,
+    `Step five — Recruiter Outreach. For every high-match role, Groq AI drafts a personalized cold email tailored to that specific job and company. Jakarta Mail sends it via Gmail SMTP with my CV attached. And a dedup tracker makes sure no recruiter ever gets the same email twice.`,
+    `Step six — WhatsApp Summary via Twilio. The moment the run finishes, Twilio fires a chunked WhatsApp summary to my phone. I wake up knowing exactly what got applied, what needs manual attention, and what emails went out. Best morning routine I've ever had.`,
+    `And step seven — it runs itself. Every. Single. Day. Scheduled GitHub Actions at one AM UTC. Builds, fires, shuts down. No laptop. No trigger. No me. That is literally the whole point.`
+  ];
+
+  for (let i = 0; i < stepCards.length; i++) {
+    if (tourAborted) return cleanup();
+    highlightCard(stepCards[i]);
+    await speakSegment(stepNarrations[i], `Step ${i + 1} of 7`, null);
+  }
+  document.querySelectorAll('.step-card.speaking').forEach(c => c.classList.remove('speaking'));
+
+  if (tourAborted) return cleanup();
+  await speakSegment(
+    `By the numbers — multiple countries searched every night, three AI providers with automatic failover, a ninety percent minimum match score before anything gets applied, and zero minutes of my daily manual work.`,
+    'By the Numbers', statsEl
+  );
+
+  if (tourAborted) return cleanup();
+  await speakSegment(
+    `Here's the real lesson. Don't be scared of AI. Use it to think through the problem with you. The code is the easy bit. The architecture, the edge cases, the decisions — that's where you still matter. AI doesn't replace you. It turbocharges you.`,
+    'The Real Lesson', philEl
+  );
+
+  if (tourAborted) return cleanup();
+  await speakSegment(
+    `A massive thank you to LinkedIn, Groq AI, Google Gemini, LM Studio, Selenium, Twilio, and GitHub Actions. Each platform did something the others couldn't. Together they made something I could've never built alone.`,
+    'Thanks & Credits', thanksEl
+  );
+
+  if (tourAborted) return cleanup();
+  await speakSegment(
+    `Build the system. Set the direction. Let it run. That's the whole game. Now here's my question for you — what should I build next? A Playwright TypeScript port? Something completely different? Text me on WhatsApp or hit me up on LinkedIn. I genuinely read everything. Let's figure it out together. Thanks so much for listening!`,
+    'Wrapping Up', finalEl
+  );
+
+  cleanup();
+}
+
+function stopTour() {
+  tourAborted = true;
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  cleanup();
+}
+
+function cleanup() {
+  tourActive = false;
+  tourAborted = false;
+  document.getElementById('speak-bar').classList.remove('visible');
+  document.querySelectorAll('.step-card.speaking, .step-card.open').forEach(c => {
+    c.classList.remove('speaking', 'open');
+  });
+}
+
+/* ═══════════════════════════════════════
+   VOICE PRELOAD
+═══════════════════════════════════════ */
+if (window.speechSynthesis) {
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+  speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>
